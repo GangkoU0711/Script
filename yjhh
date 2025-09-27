@@ -1,0 +1,160 @@
+-- 一键汉化脚本加载器 v2.0
+local CT = {}
+
+-- 翻译词典
+CT.Tr = {
+    ["Menu"]="菜单",["Settings"]="设置",["Options"]="选项",["Enable"]="启用",["Disable"]="禁用",
+    ["Toggle"]="开关",["On"]="开",["Off"]="关",["Save"]="保存",["Load"]="加载",["Reset"]="重置",
+    ["Close"]="关闭",["Exit"]="退出",["Back"]="返回",["Next"]="下一步",["Confirm"]="确认",
+    ["Cancel"]="取消",["Yes"]="是",["No"]="否",["Player"]="玩家",["Character"]="角色",
+    ["Health"]="生命值",["Speed"]="速度",["Jump"]="跳跃",["Fly"]="飞行",["Teleport"]="传送",
+    ["God Mode"]="上帝模式",["Auto"]="自动",["Farm"]="刷取",["Money"]="金钱",["Coins"]="硬币",
+    ["Main"]="主要",["Combat"]="战斗",["Utility"]="实用",["Fun"]="娱乐",["Misc"]="其他"
+}
+
+-- 翻译函数
+function CT.T(t)
+    if not t or type(t)~="string" then return t end
+    if CT.Tr[t] then return CT.Tr[t] end
+    local lt=t:lower()
+    for k,v in pairs(CT.Tr) do if k:lower()==lt then return v end end
+    for k,v in pairs(CT.Tr) do t=t:gsub(k,v) end
+    return t
+end
+
+-- 汉化引擎
+function CT.SetupTR()
+    local function tr(g)
+        if not g:IsA("TextLabel") and not g:IsA("TextButton") and not g:IsA("TextBox") then return end
+        local txt=g.Text
+        if txt and txt~="" then
+            local nt=CT.T(txt)
+            if nt~=txt then g.Text=nt end
+        end
+    end
+    
+    local function scan(p)
+        for _,g in ipairs(p:GetDescendants()) do pcall(tr,g) end
+    end
+    
+    -- 尝试元表劫持
+    pcall(function()
+        local m=getrawmetatable(game)
+        setreadonly(m,false)
+        local oi=m.__newindex
+        m.__newindex=newcclosure(function(t,k,v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k=="Text" then
+                v=CT.T(tostring(v))
+            end
+            return oi(t,k,v)
+        end)
+        setreadonly(m,true)
+    end)
+    
+    -- 备用扫描
+    local gs={game:GetService("CoreGui")}
+    local p=game:GetService("Players").LocalPlayer
+    if p and p:FindFirstChild("PlayerGui") then table.insert(gs,p.PlayerGui) end
+    
+    for _,g in ipairs(gs) do
+        pcall(scan,g)
+        g.DescendantAdded:Connect(function(d) task.wait(0.1) pcall(tr,d) end)
+    end
+end
+
+-- 创建UI
+function CT.CreateUI()
+    local plr=game:GetService("Players").LocalPlayer
+    local pg=plr:WaitForChild("PlayerGui")
+    
+    local sg=Instance.new("ScreenGui")
+    sg.Name="ChineseTranslator"
+    sg.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+    sg.Parent=pg
+    
+    local mf=Instance.new("Frame")
+    mf.Size=UDim2.new(0,300,0,180)
+    mf.Position=UDim2.new(0.5,-150,0.5,-90)
+    mf.BackgroundColor3=Color3.fromRGB(40,40,50)
+    mf.BorderSizePixel=0
+    mf.Parent=sg
+    
+    Instance.new("UICorner",mf)
+    
+    local title=Instance.new("TextLabel")
+    title.Size=UDim2.new(1,0,0,35)
+    title.BackgroundColor3=Color3.fromRGB(30,30,40)
+    title.Text="一键汉化脚本加载器"
+    title.TextColor3=Color3.fromRGB(255,255,255)
+    title.TextScaled=true
+    title.Font=Enum.Font.GothamBold
+    title.Parent=mf
+    Instance.new("UICorner",title)
+    
+    local urlBox=Instance.new("TextBox")
+    urlBox.Size=UDim2.new(0.9,0,0,30)
+    urlBox.Position=UDim2.new(0.05,0,0.25,0)
+    urlBox.BackgroundColor3=Color3.fromRGB(60,60,70)
+    urlBox.PlaceholderText="在此粘贴脚本URL..."
+    urlBox.Text=""
+    urlBox.TextColor3=Color3.fromRGB(255,255,255)
+    urlBox.TextScaled=true
+    urlBox.Parent=mf
+    Instance.new("UICorner",urlBox)
+    
+    local btn=Instance.new("TextButton")
+    btn.Size=UDim2.new(0.9,0,0,35)
+    btn.Position=UDim2.new(0.05,0,0.5,0)
+    btn.BackgroundColor3=Color3.fromRGB(70,130,200)
+    btn.Text="加载并汉化脚本"
+    btn.TextColor3=Color3.fromRGB(255,255,255)
+    btn.TextScaled=true
+    btn.Font=Enum.Font.GothamBold
+    btn.Parent=mf
+    Instance.new("UICorner",btn)
+    
+    local status=Instance.new("TextLabel")
+    status.Size=UDim2.new(0.9,0,0,25)
+    status.Position=UDim2.new(0.05,0,0.75,0)
+    status.BackgroundTransparency=1
+    status.Text="就绪"
+    status.TextColor3=Color3.fromRGB(200,200,200)
+    status.TextScaled=true
+    status.Parent=mf
+    
+    -- 按钮功能
+    btn.MouseButton1Click:Connect(function()
+        local url=urlBox.Text
+        if url=="" then status.Text="错误：请输入URL" return end
+        
+        status.Text="正在加载..."
+        status.TextColor3=Color3.fromRGB(255,200,100)
+        
+        local s,e=pcall(function()
+            local sc=game:HttpGet(url,true)
+            if sc then
+                status.Text="正在汉化..."
+                CT.SetupTR()
+                loadstring(sc)()
+                status.Text="脚本加载并汉化成功！"
+                status.TextColor3=Color3.fromRGB(100,255,100)
+            else
+                status.Text="错误：无法获取脚本内容"
+            end
+        end)
+        
+        if not s then status.Text="错误："..tostring(e) end
+    end)
+    
+    return sg
+end
+
+-- 自动启动
+local p=game:GetService("Players").LocalPlayer
+if p then
+    p.CharacterAdded:Connect(function() wait(2) CT.CreateUI() end)
+    if p.Character then CT.CreateUI() end
+end
+
+getgenv().CT=CT
+return CT
