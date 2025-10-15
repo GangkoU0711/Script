@@ -1,8 +1,8 @@
 local Translations = {
-   ["ZZZZ HUB"] = "ZZZZ HUB",
-   ["Config"] = "配置", 
-   ["Console"] = "控制台",
-   ["Home"] = "主页", 
+    ["ZZZZ HUB"] = "ZZZZ HUB",
+    ["Config"] = "配置", 
+    ["Console"] = "控制台",
+    ["Home"] = "主页", 
     ["Movement"] = "移动",
     ["Server"] = "服务器",
     ["Visual"] = "视觉",
