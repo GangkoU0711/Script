@@ -189,8 +189,7 @@ setupTranslationEngine()
 
 -- 外部脚本加载（如果有需要）
 local success, err = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/CutTrees"))()
-end)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/dreamszs/zzzz_hub/refs/heads/main/zzzz_v14-obfuscated%20(3).lua"))() 
 
 if not success then
     warn("外部脚本加载失败:", err)
