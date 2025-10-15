@@ -1,0 +1,197 @@
+local Translations = {
+    ["ZZZZ HUB"] = "ZZZZ HUB",
+    ["Config"] = "配置",
+    ["Console"] = "控制台",
+    ["Home"] = "主页", 
+    ["Movement"] = "移动",
+    ["Server"] = "服务器",
+    ["Visual"] = "视觉",
+    ["Config Settings"] = "配置设置",
+    ["Host to Host Max Distance"] = "主机到主机最大距离",
+    ["Platform speed"] = "平台速度",
+    ["Platform Max Height"] = "平台最大高度",
+    ["Reset Settings"] = "重置设置",
+    ["Reset All Settings"] = "重置所有设置",
+    ["Reset Toggles"] = "重置切换选项",
+    ["Infinite Jump Power"] = "无限跳跃力量",
+    ["Infinite Jump Cooldown"] = "无限跳跃冷却时间",
+    ["Jump Boost Power"] = "跳跃增强力量",
+    ["Float to Plot Speed"] = "浮空到地块速度",
+    ["Float to Plot Max Distance"] = "浮空到地块最大距离",
+    ["Plot ESP Color"] = "地块ESP颜色",
+    ["Pick Plot ESP Color"] = "选择地块ESP颜色",
+    ["Movement Settings"] = "移动设置",
+    ["Float Descent Speed"] = "浮空下降速度",
+    ["Helicopter Rotation Speed"] = "直升机旋转速度",
+    ["Grapple Flight Speed"] = "抓钩飞行速度",
+    ["Pick Player ESP Color"] = "选择玩家ESP颜色",
+    ["Plot ESP Settings"] = "地块ESP设置",
+    ["Show Plot Distance"] = "显示地块距离",
+    ["Show Plot Owner"] = "显示地块所有者",
+    ["Brainrot ESP Color"] = "Brainrot ESP颜色",
+    ["Pick Brainrot ESP Color"] = "选择Brainrot ESP颜色",
+    ["ESP Controls"] = "ESP控制",
+    ["Player ESP"] = "玩家ESP",
+    ["Plot ESP"] = "地块ESP",
+    ["Brainrot ESP"] = "Brainrot ESP",
+    ["Timer ESP"] = "计时器ESP",
+    ["Delete Borders"] = "删除边界",
+    ["Barrier Increase"] = "屏障增加",
+    ["ESP Settings"] = "ESP设置",
+    ["ESP Update interval"] = "ESP更新间隔",
+    ["Show Player Distance"] = "显示玩家距离",
+    ["Show Player Items"] = "显示玩家物品",
+    ["Player ESP Color"] = "玩家ESP颜色",
+    ["Server Options"] = "服务器选项",
+    ["Server Hop"] = "服务器切换",
+    ["Private Server"] = "私人服务器",
+    ["Rejoin Server"] = "重新加入服务器",
+    ["Platform"] = "平台",
+    ["Helicopter"] = "直升机",
+    ["Fling System"] = "摔投系统",
+    ["Fling Em"] = "摔投他们",
+    ["Select Player for Fling"] = "选择要摔投的玩家",
+    ["Ragdoll Desync"] = "布娃娃系统不同步",
+    ["Laser Cape Auto-Fire"] = "激光披风自动射击",
+    ["Freeze"] = "冻结",
+    ["Grapple Flight"] = "抓钩飞行",
+    ["Player Movement"] = "玩家移动",
+    ["Bat Destroyer (600x)"] = "蝙蝠摧毁者（600倍）",
+    ["Float"] = "浮空",
+    ["Height Bypass"] = "高度绕过",
+    ["Tall like zzzz"] = "像zzzz一样高",
+    ["Float to Plot"] = "浮空到地块",
+    ["Welcome to ZZZZ HUB v1.7"] = "欢迎使用 ZZZZ HUB v1.7",
+    ["Best Free Steal a Brainrot Script."] = "最好的免费偷取Brainrot脚本。",
+    ["always updating each week! We are ZZZZ HUB!"] = "每周更新！我们是 ZZZZ HUB！",
+    ["Join our community"] = "加入我们的社区",
+    ["Console & Debug"] = "控制台与调试",
+    ["Console Output"] = "控制台输出",
+    ["Toggle states JSON"] = "切换状态JSON",
+    ["Toggle states saved to file"] = "切换状态已保存到文件",
+    ["Desync"] = "不同步",
+}
+
+-- 添加调试功能
+local debugMode = true
+local function debugLog(message)
+    if debugMode then
+        print("[翻译调试] " .. message)
+    end
+end
+
+local function translateText(text)
+    if not text or type(text) ~= "string" then return text end
+    
+    -- 精确匹配
+    if Translations[text] then
+        debugLog("精确匹配: '" .. text .. "' -> '" .. Translations[text] .. "'")
+        return Translations[text]
+    end
+    
+    -- 模糊匹配（忽略大小写和空格）
+    local lowerText = text:lower():gsub("%s+", "")
+    for en, cn in pairs(Translations) do
+        local lowerEn = en:lower():gsub("%s+", "")
+        if lowerText == lowerEn then
+            debugLog("模糊匹配: '" .. text .. "' -> '" .. cn .. "'")
+            return cn
+        end
+    end
+    
+    -- 部分匹配
+    for en, cn in pairs(Translations) do
+        if text:find(en, 1, true) then -- 使用简单查找而非模式匹配
+            debugLog("部分匹配: '" .. text .. "' -> '" .. cn .. "'")
+            return text:gsub(en, cn)
+        end
+    end
+    
+    debugLog("未匹配: '" .. text .. "'")
+    return text
+end
+
+local function setupTranslationEngine()
+    local function translateGuiElement(gui)
+        if not gui:IsA("TextLabel") and not gui:IsA("TextButton") and not gui:IsA("TextBox") then return end
+        
+        local text = gui.Text
+        if text and text ~= "" then
+            local translated = translateText(text)
+            if translated ~= text then
+                gui.Text = translated
+                debugLog("已翻译: " .. gui:GetFullName())
+            end
+        end
+    end
+
+    local function scanGui(parent)
+        debugLog("扫描: " .. parent:GetFullName())
+        for _, gui in ipairs(parent:GetDescendants()) do
+            pcall(translateGuiElement, gui)
+        end
+    end
+
+    local function setupDescendantListener(parent)
+        parent.DescendantAdded:Connect(function(descendant)
+            task.wait(0.1) -- 给元素一些时间初始化
+            pcall(translateGuiElement, descendant)
+        end)
+    end
+
+    -- 尝试元表劫持
+    local success, err = pcall(function()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        
+        local oldIndex = mt.__newindex
+        mt.__newindex = newcclosure(function(t, k, v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
+                v = translateText(tostring(v))
+            end
+            return oldIndex(t, k, v)
+        end)
+        
+        setreadonly(mt, true)
+        debugLog("元表劫持成功")
+    end)
+
+    if not success then
+        debugLog("元表劫持失败: " .. tostring(err))
+        debugLog("使用备用方案")
+        
+        local guisToScan = {game:GetService("CoreGui")}
+        local player = game:GetService("Players").LocalPlayer
+        if player and player:FindFirstChild("PlayerGui") then
+            table.insert(guisToScan, player.PlayerGui)
+        end
+
+        -- 初始扫描
+        for _, gui in ipairs(guisToScan) do
+            pcall(setupDescendantListener, gui)
+            pcall(scanGui, gui)
+        end
+
+        -- 定期扫描
+        while true do
+            for _, gui in ipairs(guisToScan) do
+                pcall(scanGui, gui)
+            end
+            task.wait(3)
+        end
+    end
+end
+
+-- 等待游戏加载完成
+task.wait(5)
+debugLog("启动翻译引擎")
+setupTranslationEngine()
+
+-- 外部脚本加载（如果有需要）
+local success, err = pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/CutTrees"))()
+end)
+
+if not success then
+    warn("外部脚本加载失败:", err)
+end
