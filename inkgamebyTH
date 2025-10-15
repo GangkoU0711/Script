@@ -25,7 +25,7 @@ local Translations = {
     ["Executor"] = "执行器",
     ["JobId"] = "任务ID",
     ["Copy"] = "复制",
-    ["discord"] = "汉化byTH",
+    ["https://discord.gg/7M6XVBkaY"] = "汉化byTH",
     ["Menu Settings"] = "菜单设置",
     ["Custom Cursor"] = "自定义光标",
     ["DPI Scale"] = "DPI 缩放",
@@ -105,6 +105,7 @@ local Translations = {
     ["Delete Rope"] = "删除绳子",
     ["Mingle"] = "社交时间",
     ["Auto QTE"] = "自动QTE",
+    ["Thanks for using BorenHub"] = "汉化来自TH 感谢使用！",
 }
 
 -- 添加调试功能
