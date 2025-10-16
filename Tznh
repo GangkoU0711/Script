@@ -149,21 +149,6 @@ local function setupTranslationEngine()
             if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
                 v = translateText(tostring(v))
             end
-            return o            task.wait(0.1) -- 给元素一些时间初始化
-            pcall(translateGuiElement, descendant)
-        end)
-    end
-
-    -- 尝试元表劫持
-    local success, err = pcall(function()
-        local mt = getrawmetatable(game)
-        setreadonly(mt, false)
-        
-        local oldIndex = mt.__newindex
-        mt.__newindex = newcclosure(function(t, k, v)
-            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
-                v = translateText(tostring(v))
-            end
             return oldIndex(t, k, v)
         end)
         
@@ -187,13 +172,15 @@ local function setupTranslationEngine()
             pcall(scanGui, gui)
         end
 
-        -- 定期扫描
-        while true do
-            for _, gui in ipairs(guisToScan) do
-                pcall(scanGui, gui)
+        -- 定期扫描（使用协程避免阻塞）
+        coroutine.wrap(function()
+            while true do
+                for _, gui in ipairs(guisToScan) do
+                    pcall(scanGui, gui)
+                end
+                task.wait(3)
             end
-            task.wait(3)
-        end
+        end)()
     end
 end
 
@@ -202,9 +189,10 @@ task.wait(5)
 debugLog("启动翻译引擎")
 setupTranslationEngine()
 
--- 外部脚本加载（如果有需要）
+-- 外部脚本加载（如果有需要）- 修复了这里的语法错误
 local success, err = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/dreamszs/zzzz_hub/refs/heads/main/zzzz_v14-obfuscated%20(3).lua"))() 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/dreamszs/zzzz_hub/refs/heads/main/zzzz_v14-obfuscated%20(3).lua"))()
+end)
 
 if not success then
     warn("外部脚本加载失败:", err)
