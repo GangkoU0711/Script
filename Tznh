@@ -149,6 +149,21 @@ local function setupTranslationEngine()
             if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
                 v = translateText(tostring(v))
             end
+            return o            task.wait(0.1) -- 给元素一些时间初始化
+            pcall(translateGuiElement, descendant)
+        end)
+    end
+
+    -- 尝试元表劫持
+    local success, err = pcall(function()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        
+        local oldIndex = mt.__newindex
+        mt.__newindex = newcclosure(function(t, k, v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
+                v = translateText(tostring(v))
+            end
             return oldIndex(t, k, v)
         end)
         
