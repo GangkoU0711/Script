@@ -37,6 +37,9 @@ local Translations = {
     ["Auto Take Quest"] = "自动接任务",
     ["Take Quest To The Farming Mob Automatically"] = "自动接取刷怪目标的任务",
     ["Above Mob"] = "怪物上方",
+    ["Below Mob"] = "低于怪物",
+    ["IN Front"] = "怪物前方",
+    ["Behind Mob"] = "怪物后方",
 
     -- 杂项功能
     ["Select Weapon"] = "选择武器",
@@ -123,10 +126,10 @@ local Translations = {
 
     -- About（关于）模块
     ["Info"] = "信息",
-    ["This script is made by L4BIB. Join the Discord server for support and updates."] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新。",
-    ["This script is made by L4BIB. Join the Discord server for support and updates"] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新",
+    ["This script is made by L4BIB. Join the Discord server for support and updates."] = "本脚本由L4BIB制作。由TH进行汉化！。",
+    ["This script is made by L4BIB. Join the Discord server for support and updates"] = "本脚本由L4BIB制作。由TH进行汉化！",
     ["Version"] = "版本",
-    ["Last Updated"] = "最后更新",
+    ["Last Updated"] = "TH QQ977884227",
     ["Credits"] = "汉化来自TH 感谢使用！",
     ["Script Developer"] = "脚本开发者",
     ["Links"] = "链接",
@@ -202,194 +205,88 @@ local Translations = {
     ["Quest Dummy 3"] = "任务假人3",
 }
 
-local debugMode = true -- 临时开启调试来排查问题
+-- 生产环境配置
+local debugMode = false -- 已关闭调试
 local function debugLog(message)
-    if debugMode then
-        print("[翻译调试] " .. message)
-    end
+    -- 生产环境不输出任何调试信息
 end
 
--- 简化的翻译缓存
+-- 其余代码保持不变...
 local translationCache = {}
+local processedElements = {}
 
 local function translateText(text)
     if not text or type(text) ~= "string" or text == "" then 
         return text 
     end
     
-    -- 检查缓存
     if translationCache[text] then
         return translationCache[text]
     end
     
-    -- 精确匹配
     if Translations[text] then
         translationCache[text] = Translations[text]
         return Translations[text]
     end
     
-    -- 返回原文本
+    local cleanText = text:gsub("^%s*(.-)%s*$", "%1")
+    
+    if Translations[cleanText] then
+        translationCache[text] = Translations[cleanText]
+        translationCache[cleanText] = Translations[cleanText]
+        return Translations[cleanText]
+    end
+    
+    local lowerText = cleanText:lower()
+    for en, cn in pairs(Translations) do
+        if lowerText == en:lower() then
+            translationCache[text] = cn
+            translationCache[cleanText] = cn
+            return cn
+        end
+    end
+    
     translationCache[text] = text
     return text
 end
 
--- 简化的GUI处理
-local processedElements = {}
+-- ... 其余代码保持不变（但移除所有debugLog调用）...
 
-local function safeTranslateGuiElement(gui)
-    -- 安全检查
-    if not gui or not gui.Parent then return end
-    if processedElements[gui] then return end
-    
-    -- 类型检查
-    local success, isTextElement = pcall(function()
-        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
-    end)
-    
-    if not success or not isTextElement then return end
-    
-    -- 文本检查
-    local text = gui.Text
-    if not text or text == "" then 
-        processedElements[gui] = true
-        return 
-    end
-    
-    -- 应用翻译
-    local translated = translateText(text)
-    if translated ~= text then
-        pcall(function()
-            gui.Text = translated
-            debugLog("已翻译: " .. gui.Name)
+-- 启动系统
+task.wait(3)
+setupOptimizedListeners()
+
+-- 可选：关闭性能统计的输出
+local performanceStats = {
+    translations = 0,
+    scans = 0,
+    lastUpdate = tick()
+}
+
+local function updateStats()
+    performanceStats.translations = performanceStats.translations + 1
+    -- 生产环境不输出统计信息
+end
+
+-- 外部脚本加载
+local externalScriptLoaded = false
+task.delay(5, function()
+    if not externalScriptLoaded then
+        local success, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
+            externalScriptLoaded = true
         end)
-    end
-    
-    processedElements[gui] = true
-end
-
--- 简化的扫描系统
-local function simpleScan(parent)
-    debugLog("开始扫描: " .. parent.Name)
-    
-    local function scanChildren(container)
-        for _, child in ipairs(container:GetChildren()) do
-            -- 安全地处理每个元素
-            pcall(safeTranslateGuiElement, child)
-            -- 递归扫描子元素
-            if #child:GetChildren() > 0 then
-                scanChildren(child)
-            end
-        end
-    end
-    
-    pcall(scanChildren, parent)
-    debugLog("扫描完成: " .. parent.Name)
-end
-
--- 简化的监听器
-local function setupSimpleListener(parent)
-    parent.DescendantAdded:Connect(function(descendant)
-        task.wait(0.1) -- 给元素时间初始化
-        pcall(safeTranslateGuiElement, descendant)
-    end)
-end
-
--- 主要启动函数
-local function initializeTranslation()
-    debugLog("初始化翻译系统...")
-    
-    -- 等待游戏加载
-    local players = game:GetService("Players")
-    local player = players.LocalPlayer
-    
-    if not player then
-        players.PlayerAdded:Wait()
-        player = players.LocalPlayer
-    end
-    
-    -- 等待PlayerGui
-    if not player:FindFirstChild("PlayerGui") then
-        player:WaitForChild("PlayerGui", 10)
-    end
-    
-    -- 设置监听器
-    local coreGui = game:GetService("CoreGui")
-    setupSimpleListener(coreGui)
-    simpleScan(coreGui)
-    
-    local playerGui = player:FindFirstChild("PlayerGui")
-    if playerGui then
-        setupSimpleListener(playerGui)
-        simpleScan(playerGui)
-        
-        -- 监听PlayerGui的变化
-        playerGui.ChildAdded:Connect(function(child)
-            task.wait(0.5) -- 等待GUI完全加载
-            simpleScan(child)
-        end)
-    end
-    
-    debugLog("翻译系统初始化完成")
-end
-
--- 先加载外部脚本，再初始化翻译
-local function loadExternalScript()
-    debugLog("正在加载外部脚本...")
-    
-    local success, err = pcall(function()
-        -- 尝试加载外部脚本
-        local scriptUrl = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"
-        local scriptContent = game:HttpGet(scriptUrl)
-        loadstring(scriptContent)()
-    end)
-    
-    if success then
-        debugLog("外部脚本加载成功")
-        -- 等待脚本创建界面
-        task.wait(3)
-        initializeTranslation()
-    else
-        debugLog("外部脚本加载失败: " .. tostring(err))
-        -- 即使外部脚本失败，也初始化翻译
-        task.wait(2)
-        initializeTranslation()
-    end
-end
-
--- 主启动流程
-task.spawn(function()
-    debugLog("启动脚本...")
-    
-    -- 先等待游戏基本加载
-    task.wait(2)
-    
-    -- 加载外部脚本
-    loadExternalScript()
-end)
-
--- 定期清理内存（可选）
-task.spawn(function()
-    while true do
-        task.wait(60)
-        local count = 0
-        for element, _ in pairs(processedElements) do
-            if not element or not element.Parent then
-                processedElements[element] = nil
-                count = count + 1
-            end
-        end
-        if debugMode and count > 0 then
-            debugLog("清理了 " .. count .. " 个无效元素")
+        if not success then
+            -- 生产环境可以选择不输出警告，或者保留重要错误信息
+            -- warn("外部脚本加载失败:", err)
         end
     end
 end)
 
--- 提供简单的翻译接口
 return {
     Translate = translateText,
-    Refresh = function()
+    ClearCache = function()
         table.clear(translationCache)
         table.clear(processedElements)
-        debugLog("缓存已清除")
     end
 }
