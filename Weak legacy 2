@@ -118,20 +118,17 @@ local Translations = {
      ["UPD 4.75"] = "版本4.75",
      ["Weak Legacy 2"] = "Weak Legacy 2"
  }
--- 调试模式开启（方便排查问题，测试后可改false）
  local debugMode = true
  local function debugLog(message)
      if debugMode then
          print("[Delta汉化调试] " .. message)
      end
  end
- -- 预缓存翻译表（优化性能）
  local cachedTranslations = {}
  for en, cn in pairs(Translations) do
      cachedTranslations[en:lower():gsub("%s+", "")] = cn
      cachedTranslations[en] = cn
  end
- -- 文本翻译函数
  local function translateText(text)
      if not text or type(text) ~= "string" then return text end
      local textLower = text:lower():gsub("%s+", "")
@@ -147,7 +144,6 @@ local Translations = {
      debugLog("未匹配: '" .. text .. "'")
      return text
  end
- -- UI元素翻译处理
  local function translateGuiElement(gui)
      if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
      local text = gui.Text
@@ -161,7 +157,6 @@ local Translations = {
          debugLog("已翻译: " .. gui:GetFullName())
      end
  end
- -- 扫描UI容器
  local function scanGui(parent)
      debugLog("扫描: " .. parent:GetFullName())
      for _, gui in ipairs(parent:GetChildren()) do
@@ -171,7 +166,6 @@ local Translations = {
          end
      end
  end
- -- 监听新UI元素
  local function setupDescendantListener(parent)
      parent.DescendantAdded:Connect(function(descendant)
          task.wait(0.3)
@@ -179,21 +173,18 @@ local Translations = {
      end)
      debugLog("已监听: " .. parent:GetFullName())
  end
- -- ===================== Delta环境专属适配 =====================
  debugLog("启动Delta汉化引擎")
- -- 强制兼容模式（跳过元表劫持，适配Delta环境）
+ -- ========== 关键修改：替换为实际Delta UI路径 ==========
  local guisToScan = {
-     game:GetService("CoreGui").Delta,  -- Delta注入器的专属UI容器
+     game:GetService("CoreGui").DeltaInjectorUI,  -- 请根据打印结果替换为真实路径
      game:GetService("Players").LocalPlayer.PlayerGui
  }
- -- 初始化扫描和监听
  for _, gui in ipairs(guisToScan) do
      if gui then
          pcall(setupDescendantListener, gui)
          pcall(scanGui, gui)
      end
  end
- -- 定期扫描（5秒一次，确保动态UI被翻译）
  local isScanning = false
  coroutine.wrap(function()
      while not isScanning do
@@ -205,7 +196,6 @@ local Translations = {
          isScanning = false
      end
  end)()
- -- 外部脚本加载（超时控制）
  local success, err = pcall(function()
      local httpService = game:GetService("HttpService")
      local request = httpService:RequestAsync({
