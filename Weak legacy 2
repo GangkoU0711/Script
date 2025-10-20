@@ -118,87 +118,127 @@ local Translations = {
      ["UPD 4.75"] = "版本4.75",
      ["Weak Legacy 2"] = "Weak Legacy 2"
  }
--- 关闭调试日志，减少资源消耗
- local debugMode = false
- local function debugLog(message)
-     if debugMode then
-         print("[翻译调试] " .. message)
-     end
- end
- -- 预缓存翻译表，优化匹配效率
- local cachedTranslations = {}
- for en, cn in pairs(Translations) do
-     cachedTranslations[en:lower():gsub("%s+", "")] = cn
-     cachedTranslations[en] = cn
- end
- local function translateText(text)
-     if not text or type(text) ~= "string" then return text end
-     local textLower = text:lower():gsub("%s+", "")
-     
-     if cachedTranslations[text] then
-         return cachedTranslations[text]
-     elseif cachedTranslations[textLower] then
-         return cachedTranslations[textLower]
-     end
-     return text
- end
- -- 简化UI翻译逻辑，仅扫描关键容器
- local function setupTranslation()
-     local function translateGui(gui)
-         if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
-         local text = gui.Text
-         if not text or text == "" then return end
-         
-         if gui:GetAttribute("Translated") then return end
-         local translated = translateText(text)
-         if translated ~= text then
-             gui.Text = translated
-             gui:SetAttribute("Translated", true)
-         end
-     end
-     local function scan(parent)
-         for _, child in ipairs(parent:GetChildren()) do
-             pcall(translateGui, child)
-             if #child:GetChildren() > 0 then
-                 pcall(scan, child)
-             end
-         end
-     end
-     local function listen(parent)
-         parent.DescendantAdded:Connect(function(descendant)
-             task.wait(0.3)
-             pcall(translateGui, descendant)
-         end)
-     end
-     -- 仅扫描外部脚本可能存在的UI容器
-     local guis = {
-         game:GetService("CoreGui"),
-         game:GetService("Players").LocalPlayer.PlayerGui
-     }
-     for _, gui in ipairs(guis) do
-         if gui then
-             pcall(scan, gui)
-             pcall(listen, gui)
-         end
-     end
- end
- -- 等待游戏加载后启动汉化
- task.wait(5)
- setupTranslation()
- -- 加载外部脚本（保留原逻辑）
- local success, err = pcall(function()
-     local httpService = game:GetService("HttpService")
-     local request = httpService:RequestAsync({
-         Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
-         Method = "GET",
-         Timeout = 5
-     })
-     if request.Success then
-         loadstring(request.Body)()
-     else
-         warn("外部脚本加载失败，状态码:", request.StatusCode)
-     end
- end)
- if not success then
-     warn("外部脚本加载失败，原因:", err)
- end
+-- 关闭调试日志（减少打印消耗）
+local debugMode = false
+local function debugLog(message)
+    if debugMode then
+        print("[翻译调试] " .. message)
+    end
+end
+
+-- 预缓存翻译表（避免重复处理字符串）
+local cachedTranslations = {}
+for en, cn in pairs(Translations) do
+    cachedTranslations[en:lower():gsub("%s+", "")] = cn
+    cachedTranslations[en] = cn
+end
+
+local function translateText(text)
+    if not text or type(text) ~= "string" then return text end
+    local textLower = text:lower():gsub("%s+", "")
+    
+    -- 优先精确匹配
+    if cachedTranslations[text] then
+        return cachedTranslations[text]
+    -- 次选模糊匹配
+    elseif cachedTranslations[textLower] then
+        return cachedTranslations[textLower]
+    end
+    return text
+end
+
+local function setupTranslationEngine()
+    local function translateGuiElement(gui)
+        if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
+        local text = gui.Text
+        if not text or text == "" then return end
+        
+        -- 标记已翻译，避免重复处理
+        if gui:GetAttribute("Translated") then return end
+        local translated = translateText(text)
+        if translated ~= text then
+            gui.Text = translated
+            gui:SetAttribute("Translated", true)
+            debugLog("已翻译: " .. gui:GetFullName())
+        end
+    end
+
+    local function scanGui(parent)
+        debugLog("扫描: " .. parent:GetFullName())
+        -- 改用GetChildren遍历（减少深层嵌套的性能消耗）
+        for _, gui in ipairs(parent:GetChildren()) do
+            pcall(translateGuiElement, gui)
+            -- 仅递归有子节点的容器
+            if #gui:GetChildren() > 0 then
+                pcall(scanGui, gui)
+            end
+        end
+    end
+
+    local function setupDescendantListener(parent)
+        parent.DescendantAdded:Connect(function(descendant)
+            task.wait(0.3) -- 延长等待时间，避免重复触发
+            pcall(translateGuiElement, descendant)
+        end)
+    end
+
+    -- 元表劫持逻辑（保留高效模式）
+    local success, err = pcall(function()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        local oldIndex = mt.__newindex
+        mt.__newindex = newcclosure(function(t, k, v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
+                v = translateText(tostring(v))
+            end
+            return oldIndex(t, k, v)
+        end)
+        setreadonly(mt, true)
+        debugLog("元表劫持成功（高效模式）")
+    end)
+
+    if not success then
+        debugLog("元表劫持失败: " .. tostring(err))
+        local guisToScan = {game:GetService("CoreGui"), game:GetService("Players").LocalPlayer.PlayerGui}
+
+        -- 初始扫描+监听
+        for _, gui in ipairs(guisToScan) do
+            if gui then
+                pcall(setupDescendantListener, gui)
+                pcall(scanGui, gui)
+            end
+        end
+
+        -- 延长定期扫描间隔（从3秒→10秒，减少资源占用）
+        coroutine.wrap(function()
+            while true do
+                for _, gui in ipairs(guisToScan) do
+                    if gui then pcall(scanGui, gui) end
+                end
+                task.wait(10)
+            end
+        end)()
+    end
+end
+
+-- 等待游戏加载（保留5秒，确保UI初始化）
+task.wait(5)
+setupTranslationEngine()
+
+-- 外部脚本加载（增加超时控制，避免阻塞）
+local success, err = pcall(function()
+    local httpService = game:GetService("HttpService")
+    local request = httpService:RequestAsync({
+        Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
+        Method = "GET",
+        Timeout = 5
+    })
+    if request.Success then
+        loadstring(request.Body)()
+    else
+        warn("外部脚本加载失败，状态码:", request.StatusCode)
+    end
+end)
+if not success then
+    warn("外部脚本加载失败，原因:", err)
+end
