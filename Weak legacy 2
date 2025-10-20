@@ -174,24 +174,30 @@ local Translations = {
      debugLog("已监听: " .. parent:GetFullName())
  end
  debugLog("启动Delta汉化引擎")
- -- ========== 关键修改：替换为实际Delta UI路径 ==========
- local guisToScan = {
-     game:GetService("CoreGui").DeltaInjectorUI,  -- 请根据打印结果替换为真实路径
-     game:GetService("Players").LocalPlayer.PlayerGui
- }
- for _, gui in ipairs(guisToScan) do
-     if gui then
-         pcall(setupDescendantListener, gui)
-         pcall(scanGui, gui)
+ -- ========== 关键修改：遍历所有可能的UI容器 ==========
+ local function scanAllPossibleGUIs()
+     -- 扫描CoreGui所有子容器
+     for _, child in ipairs(game:GetService("CoreGui"):GetChildren()) do
+         pcall(setupDescendantListener, child)
+         pcall(scanGui, child)
+     end
+     
+     -- 扫描PlayerGui所有子容器
+     local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
+     if playerGui then
+         for _, child in ipairs(playerGui:GetChildren()) do
+             pcall(setupDescendantListener, child)
+             pcall(scanGui, child)
+         end
      end
  end
+ scanAllPossibleGUIs()
+ -- 定期扫描（5秒一次，确保动态加载的UI被翻译）
  local isScanning = false
  coroutine.wrap(function()
      while not isScanning do
          isScanning = true
-         for _, gui in ipairs(guisToScan) do
-             if gui then pcall(scanGui, gui) end
-         end
+         scanAllPossibleGUIs()
          task.wait(5)
          isScanning = false
      end
