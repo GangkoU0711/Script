@@ -119,6 +119,116 @@ local Translations = {
     ["Weak Legacy 2"] = "Weak Legacy 2"
 }
 
+local Translations = {
+    ["Ink Game | BorenHub"] = "墨水游戏 | BorenHub",
+    ["Toggle"] = "切换",
+    ["Lock"] = "锁定",
+    ["Misc"] = "杂项",
+    ["UI Settings"] = "界面设置",
+    ["Anti Ragdoll"] = "防布娃娃效果",
+    ["Auto reach"] = "自动到达",
+    ["No Cooldown Proximity"] = "无冷却 proximity",
+    ["Anti Lag"] = "防延迟",
+    ["Fun"] = "趣味",
+    ["Free VIP (Visual)"] = "免费VIP（视觉）",
+    ["Enable Spectate"] = "启用观战",
+    ["Custom Win"] = "自定义胜利",
+    ["Set Custom Tag"] = "设置自定义标签",
+    ["Enter tag number (@-999)..."] = "输入标签号 (@-999)...",
+    ["Search"] = "搜索",
+    ["Movement"] = "移动",
+    ["Infinite Jump"] = "无限跳跃",
+    ["Walk Speed"] = "行走速度",
+    ["Automation"] = "自动化",
+    ["Auto Collect Flashbang"] = "自动收集闪光弹",
+    ["Auto Collect Bandage"] = "自动收集绷带",
+    ["Info & Credits"] = "信息与鸣谢",
+    ["Executor"] = "执行器",
+    ["JobId"] = "任务ID",
+    ["Copy"] = "复制",
+    ["https://discord.gg/7M6XVBkaY"] = "汉化byTH",
+    ["Menu Settings"] = "菜单设置",
+    ["Custom Cursor"] = "自定义光标",
+    ["DPI Scale"] = "DPI 缩放",
+    ["Menu Keybind"] = "菜单键绑定",
+    ["Unload"] = "卸载",
+    ["Aura"] = "光环",
+    ["Camlock Player / TP"] = "锁定玩家视角 / 传送",
+    ["Auto Weapon"] = "自动武器",
+    ["Select killaura Target"] = "选择杀戮光环目标",
+    ["GooMode(risk ban + Use best in K"] = "粘液模式（有封禁风险 + 在K中最佳使用）",
+    ["Killaura(BETA)"] = "杀戮光环（测试版）",
+    ["Anti Ragdoll + No Stun"] = "防布娃娃效果 + 无眩晕",
+    ["Attachment"] = "附着",
+    ["Player Attach"] = "玩家附着",
+    ["Attach Range"] = "附着范围",
+    ["Movement Type"] = "移动类型",
+    ["Tween"] = "补间动画",
+    ["Tween Duration"] = "补间持续时间",
+    ["Stay Behind Target"] = "保持在目标后方",
+    ["Behind Distance"] = "后方距离",
+    ["General"] = "常规",
+    ["Auto Skip Dialogues"] = "自动跳过对话",
+    ["Auto Vote"] = "自动投票",
+    ["Vote Options"] = "投票选项",
+    ["KeepPlaying"] = "继续游戏",
+    ["Free Phantomstep"] = "免费幻影步",
+    ["Free ParkourArtist"] = "免费跑酷艺术家",
+    ["Free Dash"] = "免费冲刺",
+    ["Anti Fling"] = "防摔投",
+    ["Anti Banana"] = "防香蕉",
+    ["Anti Stun"] = "防眩晕",
+    ["Main"] = "主要",
+    ["Combat"] = "战斗",
+    ["Aug of War"] = "战争增强",
+    ["Auto smoke v1"] = "自动烟雾 v1",
+    ["AUTO PULL"] = "自动拉取",
+    ["Auto Choke v2"] = "自动窒息 v2",
+    ["Glass Bridge"] = "玻璃桥",
+    ["Highlight Glass"] = "高亮玻璃",
+    ["Noclip"] = "穿墙",
+    ["Bring person"] = "带人来",
+    ["Teleport to End"] = "传送至终点",
+    ["Rebel"] = "反抗",
+    ["Troll Players"] = "恶搞玩家",
+    ["Auto CamLock Guard"] = "自动锁定守卫视角",
+    ["Sky Squid"] = "天空鱿鱼",
+    ["Bring Guard"] = "带来守卫",
+    ["Infinite Ammo"] = "无限弹药",
+    ["Tools"] = "工具",
+    ["Anti Fall"] = "防坠落",
+    ["Instant Pole(Beta buggy)"] = "瞬间杆（测试版，有bug）",
+    ["Final"] = "最终",
+    ["Kill Aura"] = "杀戮光环",
+    ["Touch Fling(risk ban)"] = "触摸摔投（有封禁风险）",
+    ["10M"] = "10米",
+    ["Image"] = "图像",
+    ["Green Light Red Light"] = "红灯绿灯",
+    ["Win Instantly"] = "立即获胜",
+    ["Help Players"] = "帮助玩家",
+    ["remove InjuredWalking"] = "移除受伤行走",
+    ["Troll Player"] = "恶搞玩家",
+    ["Dalgona"] = "糖饼",
+    ["Complete Dalgona"] = "完成糖饼",
+    ["Free Lighter"] = "免费打火机",
+    ["Hide and Seek"] = "捉迷藏",
+    ["Kill Aura (Hiders)"] = "杀戮光环（躲藏者）",
+    ["Kill spikes (Hiders)"] = "杀死尖刺（躲藏者）",
+    ["Remove Spikes"] = "移除尖刺",
+    ["Teleport to Hider"] = "传送至躲藏者",
+    ["Teleport to Safe Zone"] = "传送至安全区",
+    ["Esp seeker/hiders"] = "透视 寻找者/躲藏者",
+    ["Teleport 100 Blocks Up"] = "传送至100格上方",
+    ["Loggle"] = "切换", 
+    ["Top of War"] = "战争顶部",
+    ["Teleport 40 Blocks Down"] = "传送至40格下方",
+    ["Jump Rope"] = "跳绳",
+    ["Delete Rope"] = "删除绳子",
+    ["Mingle"] = "社交时间",
+    ["Auto QTE"] = "自动QTE",
+    ["Thanks for using BorenHub"] = "汉化来自TH 感谢使用！",
+}
+
 -- 添加调试功能
 local debugMode = true
 local function debugLog(message)
@@ -219,15 +329,13 @@ local function setupTranslationEngine()
             pcall(scanGui, gui)
         end
 
-        -- 定期扫描（使用协程避免阻塞）
-        coroutine.wrap(function()
-            while true do
-                for _, gui in ipairs(guisToScan) do
-                    pcall(scanGui, gui)
-                end
-                task.wait(3)
+        -- 定期扫描
+        while true do
+            for _, gui in ipairs(guisToScan) do
+                pcall(scanGui, gui)
             end
-        end)()
+            task.wait(3)
+        end
     end
 end
 
@@ -236,10 +344,11 @@ task.wait(5)
 debugLog("启动翻译引擎")
 setupTranslationEngine()
 
--- 外部脚本加载
+-- 外部脚本加载（如果有需要）
 local success, err = pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
 end)
+
 if not success then
     warn("外部脚本加载失败:", err)
 end
