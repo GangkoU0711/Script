@@ -202,21 +202,15 @@ local Translations = {
     ["Quest Dummy 3"] = "任务假人3",
 }
 
--- 优化后的调试系统
-local debugMode = false -- 生产环境关闭调试
-local debugCache = {}
+local debugMode = true -- 临时开启调试来排查问题
 local function debugLog(message)
     if debugMode then
-        if not debugCache[message] then
-            debugCache[message] = true
-            print("[优化翻译] " .. message)
-        end
+        print("[翻译调试] " .. message)
     end
 end
 
--- 优化的翻译缓存系统
+-- 简化的翻译缓存
 local translationCache = {}
-local processedElements = {} -- 防止重复处理
 
 local function translateText(text)
     if not text or type(text) ~= "string" or text == "" then 
@@ -228,51 +222,33 @@ local function translateText(text)
         return translationCache[text]
     end
     
-    -- 精确匹配（最快）
+    -- 精确匹配
     if Translations[text] then
         translationCache[text] = Translations[text]
-        debugLog("缓存精确: " .. text)
         return Translations[text]
     end
     
-    -- 预处理文本用于匹配
-    local cleanText = text:gsub("^%s*(.-)%s*$", "%1") -- 去除首尾空格
-    
-    -- 再次检查精确匹配
-    if Translations[cleanText] then
-        translationCache[text] = Translations[cleanText]
-        translationCache[cleanText] = Translations[cleanText]
-        debugLog("缓存清理后精确: " .. cleanText)
-        return Translations[cleanText]
-    end
-    
-    -- 有限的模糊匹配（只在必要时）
-    local lowerText = cleanText:lower()
-    for en, cn in pairs(Translations) do
-        if lowerText == en:lower() then
-            translationCache[text] = cn
-            translationCache[cleanText] = cn
-            debugLog("缓存模糊: " .. cleanText)
-            return cn
-        end
-    end
-    
-    -- 未找到翻译，缓存原文本避免重复处理
+    -- 返回原文本
     translationCache[text] = text
     return text
 end
 
--- 优化的GUI处理系统
-local function translateGuiElement(gui)
-    -- 检查是否已处理
+-- 简化的GUI处理
+local processedElements = {}
+
+local function safeTranslateGuiElement(gui)
+    -- 安全检查
+    if not gui or not gui.Parent then return end
     if processedElements[gui] then return end
     
-    -- 验证GUI类型
-    if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then 
-        return 
-    end
+    -- 类型检查
+    local success, isTextElement = pcall(function()
+        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
+    end)
     
-    -- 检查文本内容
+    if not success or not isTextElement then return end
+    
+    -- 文本检查
     local text = gui.Text
     if not text or text == "" then 
         processedElements[gui] = true
@@ -280,166 +256,121 @@ local function translateGuiElement(gui)
     end
     
     -- 应用翻译
-    local success, translated = pcall(function()
-        return translateText(text)
-    end)
-    
-    if success and translated and translated ~= text then
-        gui.Text = translated
-        debugLog("翻译元素: " .. gui:GetFullName())
+    local translated = translateText(text)
+    if translated ~= text then
+        pcall(function()
+            gui.Text = translated
+            debugLog("已翻译: " .. gui.Name)
+        end)
     end
     
-    -- 标记为已处理
     processedElements[gui] = true
 end
 
--- 优化的扫描函数（使用防抖）
-local scanQueue = {}
-local scanDebounce = false
-
-local function processScanQueue()
-    if scanDebounce then return end
-    scanDebounce = true
+-- 简化的扫描系统
+local function simpleScan(parent)
+    debugLog("开始扫描: " .. parent.Name)
     
-    task.spawn(function()
-        while #scanQueue > 0 do
-            local gui = table.remove(scanQueue, 1)
-            pcall(translateGuiElement, gui)
-            task.wait(0.01) -- 每10ms处理一个元素，减轻压力
-        end
-        scanDebounce = false
-    end)
-end
-
-local function optimizedScanGui(parent)
-    -- 限制扫描深度和频率
-    local maxDepth = 3
-    local scanned = 0
-    
-    local function scanRecursive(current, depth)
-        if depth > maxDepth or scanned > 500 then return end
-        
-        for _, child in ipairs(current:GetChildren()) do
-            if scanned < 500 then -- 限制单次扫描数量
-                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
-                    table.insert(scanQueue, child)
-                    scanned = scanned + 1
-                end
-                scanRecursive(child, depth + 1)
-            else
-                break
+    local function scanChildren(container)
+        for _, child in ipairs(container:GetChildren()) do
+            -- 安全地处理每个元素
+            pcall(safeTranslateGuiElement, child)
+            -- 递归扫描子元素
+            if #child:GetChildren() > 0 then
+                scanChildren(child)
             end
         end
     end
     
-    scanRecursive(parent, 1)
-    processScanQueue()
+    pcall(scanChildren, parent)
+    debugLog("扫描完成: " .. parent.Name)
 end
 
--- 优化的监听器设置
-local function setupOptimizedListeners()
-    local guisToMonitor = {}
-    
-    -- 只监控必要的GUI
-    local function addGuiToMonitor(gui)
-        if not table.find(guisToMonitor, gui) then
-            table.insert(guisToMonitor, gui)
-            
-            -- 初始扫描（延迟执行）
-            task.delay(1, function()
-                pcall(optimizedScanGui, gui)
-            end)
-            
-            -- 新元素监听（使用防抖）
-            local addDebounce = false
-            gui.DescendantAdded:Connect(function(descendant)
-                if addDebounce then return end
-                addDebounce = true
-                
-                task.delay(0.5, function() -- 延迟处理新元素
-                    pcall(function()
-                        if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
-                            table.insert(scanQueue, descendant)
-                            processScanQueue()
-                        end
-                    end)
-                    addDebounce = false
-                end)
-            end)
-        end
-    end
+-- 简化的监听器
+local function setupSimpleListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.1) -- 给元素时间初始化
+        pcall(safeTranslateGuiElement, descendant)
+    end)
+end
 
-    -- 监控核心GUI
-    local coreGui = game:GetService("CoreGui")
-    addGuiToMonitor(coreGui)
+-- 主要启动函数
+local function initializeTranslation()
+    debugLog("初始化翻译系统...")
     
-    -- 监控玩家GUI（延迟加载）
+    -- 等待游戏加载
     local players = game:GetService("Players")
     local player = players.LocalPlayer
-    if player then
-        player:GetPropertyChangedSignal("PlayerGui"):Connect(function()
-            if player.PlayerGui then
-                addGuiToMonitor(player.PlayerGui)
-            end
-        end)
-        
-        if player.PlayerGui then
-            addGuiToMonitor(player.PlayerGui)
-        end
+    
+    if not player then
+        players.PlayerAdded:Wait()
+        player = players.LocalPlayer
     end
     
-    -- 新玩家加入监控
-    players.PlayerAdded:Connect(function(newPlayer)
-        if newPlayer == players.LocalPlayer then
-            newPlayer:GetPropertyChangedSignal("PlayerGui"):Connect(function()
-                if newPlayer.PlayerGui then
-                    addGuiToMonitor(newPlayer.PlayerGui)
-                end
-            end)
-        end
-    end)
+    -- 等待PlayerGui
+    if not player:FindFirstChild("PlayerGui") then
+        player:WaitForChild("PlayerGui", 10)
+    end
+    
+    -- 设置监听器
+    local coreGui = game:GetService("CoreGui")
+    setupSimpleListener(coreGui)
+    simpleScan(coreGui)
+    
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if playerGui then
+        setupSimpleListener(playerGui)
+        simpleScan(playerGui)
+        
+        -- 监听PlayerGui的变化
+        playerGui.ChildAdded:Connect(function(child)
+            task.wait(0.5) -- 等待GUI完全加载
+            simpleScan(child)
+        end)
+    end
+    
+    debugLog("翻译系统初始化完成")
 end
 
--- 移除元表劫持（性能杀手）
--- 使用更轻量级的方法替代
-
--- 性能监控
-local performanceStats = {
-    translations = 0,
-    scans = 0,
-    lastUpdate = tick()
-}
-
-local function updateStats()
-    performanceStats.translations = performanceStats.translations + 1
-    local now = tick()
-    if now - performanceStats.lastUpdate > 10 then -- 每10秒重置
-        if debugMode then
-            print(string.format("[性能统计] 10秒内翻译: %d 次", performanceStats.translations))
-        end
-        performanceStats.translations = 0
-        performanceStats.lastUpdate = now
+-- 先加载外部脚本，再初始化翻译
+local function loadExternalScript()
+    debugLog("正在加载外部脚本...")
+    
+    local success, err = pcall(function()
+        -- 尝试加载外部脚本
+        local scriptUrl = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"
+        local scriptContent = game:HttpGet(scriptUrl)
+        loadstring(scriptContent)()
+    end)
+    
+    if success then
+        debugLog("外部脚本加载成功")
+        -- 等待脚本创建界面
+        task.wait(3)
+        initializeTranslation()
+    else
+        debugLog("外部脚本加载失败: " .. tostring(err))
+        -- 即使外部脚本失败，也初始化翻译
+        task.wait(2)
+        initializeTranslation()
     end
 end
 
--- 优化的翻译函数（带性能监控）
-local function optimizedTranslate(text)
-    local result = translateText(text)
-    updateStats()
-    return result
-end
+-- 主启动流程
+task.spawn(function()
+    debugLog("启动脚本...")
+    
+    -- 先等待游戏基本加载
+    task.wait(2)
+    
+    -- 加载外部脚本
+    loadExternalScript()
+end)
 
--- 启动优化后的系统
-task.wait(3) -- 等待游戏完全加载
-
-debugLog("启动优化版翻译引擎")
-setupOptimizedListeners()
-
--- 可选：轻量级定期清理（防止内存泄漏）
+-- 定期清理内存（可选）
 task.spawn(function()
     while true do
-        task.wait(30) -- 30秒清理一次
-        -- 清理过期的缓存引用
+        task.wait(60)
         local count = 0
         for element, _ in pairs(processedElements) do
             if not element or not element.Parent then
@@ -448,31 +379,17 @@ task.spawn(function()
             end
         end
         if debugMode and count > 0 then
-            print("[内存清理] 清理了 " .. count .. " 个无效元素引用")
+            debugLog("清理了 " .. count .. " 个无效元素")
         end
     end
 end)
 
--- 外部脚本加载优化
-local externalScriptLoaded = false
-task.delay(5, function() -- 延迟加载外部脚本
-    if not externalScriptLoaded then
-        local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
-            externalScriptLoaded = true
-        end)
-        if not success then
-            warn("外部脚本加载失败:", err)
-        end
-    end
-end)
-
--- 导出优化后的翻译函数（供其他模块使用）
+-- 提供简单的翻译接口
 return {
-    Translate = optimizedTranslate,
-    ClearCache = function()
+    Translate = translateText,
+    Refresh = function()
         table.clear(translationCache)
         table.clear(processedElements)
-        table.clear(debugCache)
+        debugLog("缓存已清除")
     end
 }
