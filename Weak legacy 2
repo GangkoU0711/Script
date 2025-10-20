@@ -119,19 +119,21 @@ local Translations = {
     ["Weak Legacy 2"] = "Weak Legacy 2"
 }
 
--- ========== 性能优化设置 ==========
-local debugMode = false -- 发布时关闭调试
-local performanceMode = true -- 启用性能模式
+local debugMode = false
+local performanceMode = true
 
--- ========== 预编译匹配表（性能优化） ==========
+-- ========== 预编译匹配表 ==========
 local TranslationCache = {}
 local NormalizedTranslations = {}
 
--- 初始化时预处理翻译表
 for en, cn in pairs(Translations) do
     local normalized = en:lower():gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
     NormalizedTranslations[normalized] = cn
 end
+
+-- ========== 翻译锁定系统 ==========
+local TranslationLocks = {} -- 存储已锁定的翻译元素
+local LockedTexts = {} -- 存储已锁定的文本内容
 
 -- ========== 优化翻译函数 ==========
 local function translateText(text)
@@ -139,32 +141,27 @@ local function translateText(text)
         return text 
     end
     
-    -- 检查缓存
     if TranslationCache[text] then
         return TranslationCache[text]
     end
     
-    -- 精确匹配
     if Translations[text] then
         TranslationCache[text] = Translations[text]
         return Translations[text]
     end
     
-    -- 清理文本（去除多余空格）
     local cleanedText = text:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
     if Translations[cleanedText] then
         TranslationCache[text] = Translations[cleanedText]
         return Translations[cleanedText]
     end
     
-    -- 标准化匹配（忽略大小写）
     local normalizedText = cleanedText:lower()
     if NormalizedTranslations[normalizedText] then
         TranslationCache[text] = NormalizedTranslations[normalizedText]
         return NormalizedTranslations[normalizedText]
     end
     
-    -- 保留原文本
     TranslationCache[text] = text
     return text
 end
@@ -176,32 +173,86 @@ local function debugLog(message)
     end
 end
 
--- ========== 内存管理优化 ==========
-local function cleanupMemory()
-    if performanceMode then
-        -- 定期清理缓存，防止内存泄漏
-        for text, translation in pairs(TranslationCache) do
-            if type(text) == "string" and #text > 100 then
-                TranslationCache[text] = nil
-            end
-        end
-        collectgarbage("step") -- 渐进式垃圾回收
-    end
+-- ========== 锁定翻译系统 ==========
+local function lockTranslation(gui, originalText, translatedText)
+    if not gui or not originalText then return end
+    
+    -- 标记为已锁定
+    TranslationLocks[gui] = {
+        original = originalText,
+        translated = translatedText,
+        lockedAt = tick()
+    }
+    LockedTexts[originalText] = true
+    
+    debugLog("锁定翻译: '" .. originalText .. "' -> '" .. translatedText .. "'")
 end
 
--- ========== 优化GUI扫描引擎（解决卡顿） ==========
-local function setupTranslationEngine()
-    local scannedInstances = {} -- 防止重复扫描
-    local scanCooldown = 1 -- 扫描冷却时间
+local function isTranslationLocked(gui)
+    if not TranslationLocks[gui] then return false end
     
+    -- 检查GUI是否仍然存在
+    if not pcall(function() return gui.Parent ~= nil end) then
+        TranslationLocks[gui] = nil
+        return false
+    end
+    
+    return true
+end
+
+-- ========== UI状态管理 ==========
+local UIState = {
+    isActive = true,
+    currentGuis = {},
+    listeners = {}
+}
+
+local function cleanupUIState()
+    for _, connection in pairs(UIState.listeners) do
+        if connection then
+            pcall(function() connection:Disconnect() end)
+        end
+    end
+    UIState.listeners = {}
+    UIState.currentGuis = {}
+end
+
+local function refreshUIState()
+    cleanupUIState()
+    UIState.isActive = true
+    setupTranslationEngine()
+end
+
+-- ========== 优化GUI扫描引擎 ==========
+local function setupTranslationEngine()
     local function safeTranslateElement(gui)
         if not gui:IsA("TextLabel") and not gui:IsA("TextButton") and not gui:IsA("TextBox") then 
             return 
         end
         
-        -- 检查是否已经处理过
-        if scannedInstances[gui] then return end
-        scannedInstances[gui] = true
+        -- 检查GUI是否可见和启用
+        local parent = gui
+        while parent do
+            if parent:IsA("GuiObject") and not parent.Visible then
+                return
+            end
+            if parent:IsA("ScreenGui") and not parent.Enabled then
+                return
+            end
+            parent = parent.Parent
+        end
+        
+        -- 检查是否已经锁定翻译
+        if isTranslationLocked(gui) then
+            local lockData = TranslationLocks[gui]
+            -- 确保文本保持锁定状态
+            if gui.Text ~= lockData.translated then
+                pcall(function()
+                    gui.Text = lockData.translated
+                end)
+            end
+            return
+        end
         
         local text = gui.Text
         if text and text ~= "" then
@@ -209,40 +260,54 @@ local function setupTranslationEngine()
             if translated ~= text then
                 pcall(function()
                     gui.Text = translated
+                    -- 翻译成功后立即锁定
+                    lockTranslation(gui, text, translated)
                 end)
+            else
+                -- 即使没有翻译，也锁定原文本避免重复检查
+                lockTranslation(gui, text, text)
             end
         end
     end
 
     local function optimizedScanGui(parent)
+        if not UIState.isActive then return end
+        
         if performanceMode then
-            -- 分批扫描避免卡顿
             local descendants = parent:GetDescendants()
-            local batchSize = 10 -- 每批处理数量
+            local batchSize = 8
             
             for i = 1, #descendants, batchSize do
+                if not UIState.isActive then break end
+                
                 for j = i, math.min(i + batchSize - 1, #descendants) do
                     pcall(safeTranslateElement, descendants[j])
                 end
-                task.wait(0.05) -- 批次间延迟
+                task.wait(0.02) -- 进一步减少延迟
             end
         else
-            -- 普通扫描
             for _, descendant in ipairs(parent:GetDescendants()) do
+                if not UIState.isActive then break end
                 pcall(safeTranslateElement, descendant)
             end
         end
     end
 
     local function setupOptimizedDescendantListener(parent)
-        parent.DescendantAdded:Connect(function(descendant)
-            if performanceMode then
-                task.wait(0.5) -- 给新元素更多初始化时间
-            else
-                task.wait(0.1)
+        if not UIState.isActive then return end
+        
+        local connection
+        connection = parent.DescendantAdded:Connect(function(descendant)
+            if not UIState.isActive then 
+                pcall(function() connection:Disconnect() end)
+                return 
             end
+            
+            task.wait(0.2) -- 等待元素初始化
             pcall(safeTranslateElement, descendant)
         end)
+        
+        table.insert(UIState.listeners, connection)
     end
 
     -- 初始化扫描
@@ -253,27 +318,29 @@ local function setupTranslationEngine()
             table.insert(guisToScan, player.PlayerGui)
         end
 
+        UIState.currentGuis = guisToScan
+
         -- 初始扫描
         for _, gui in ipairs(guisToScan) do
+            if not UIState.isActive then break end
             pcall(setupOptimizedDescendantListener, gui)
             pcall(optimizedScanGui, gui)
         end
 
-        -- 减少定期扫描频率
-        while true do
-            task.wait(performanceMode and 10 or 5) -- 性能模式下延长扫描间隔
+        -- 极简化的定期扫描 - 只扫描新元素
+        while UIState.isActive do
+            task.wait(performanceMode and 30 or 15) -- 大幅延长扫描间隔
             
-            -- 清理缓存，防止内存泄漏
-            if performanceMode then
-                for instance in pairs(scannedInstances) do
-                    if not instance:IsDescendantOf(game) then
-                        scannedInstances[instance] = nil
-                    end
+            -- 清理无效的锁定
+            for gui, lockData in pairs(TranslationLocks) do
+                if not pcall(function() return gui.Parent ~= nil end) then
+                    TranslationLocks[gui] = nil
                 end
             end
             
-            -- 重新扫描
+            -- 只对新GUI进行扫描，已锁定的元素不再扫描
             for _, gui in ipairs(guisToScan) do
+                if not UIState.isActive then break end
                 pcall(optimizedScanGui, gui)
             end
         end
@@ -283,19 +350,89 @@ local function setupTranslationEngine()
     task.spawn(initializeScan)
 end
 
+-- ========== 窗口状态检测 ==========
+local function setupWindowStateDetection()
+    local coreGui = game:GetService("CoreGui")
+    local player = game:GetService("Players").LocalPlayer
+    if not player then return end
+    
+    local playerGui = player:WaitForChild("PlayerGui")
+    
+    local function onGuiVisibilityChanged(gui)
+        if not UIState.isActive then return end
+        
+        if gui.Enabled == false then
+            debugLog("检测到UI被隐藏，暂停翻译引擎")
+            cleanupUIState()
+        else
+            task.wait(0.5)
+            if not UIState.isActive then
+                debugLog("UI重新显示，重新初始化翻译引擎")
+                refreshUIState()
+            end
+        end
+    end
+    
+    -- 监听主要GUI的Enabled变化
+    pcall(function()
+        UIState.listeners["CoreGuiEnabled"] = coreGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+            onGuiVisibilityChanged(coreGui)
+        end)
+    end)
+    
+    pcall(function()
+        UIState.listeners["PlayerGuiEnabled"] = playerGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+            onGuiVisibilityChanged(playerGui)
+        end)
+    end)
+    
+    -- 监听新添加的ScreenGui
+    UIState.listeners["PlayerGuiChildAdded"] = playerGui.ChildAdded:Connect(function(child)
+        if child:IsA("ScreenGui") then
+            task.wait(0.1)
+            pcall(function()
+                UIState.listeners[child.Name] = child:GetPropertyChangedSignal("Enabled"):Connect(function()
+                    onGuiVisibilityChanged(child)
+                end)
+            end)
+        end
+    end)
+end
+
+-- ========== 内存管理优化 ==========
+local function cleanupMemory()
+    if performanceMode then
+        for text, translation in pairs(TranslationCache) do
+            if type(text) == "string" and #text > 100 then
+                TranslationCache[text] = nil
+            end
+        end
+        
+        -- 清理过期的锁定（超过1小时）
+        local currentTime = tick()
+        for gui, lockData in pairs(TranslationLocks) do
+            if currentTime - lockData.lockedAt > 3600 then -- 1小时
+                TranslationLocks[gui] = nil
+            end
+        end
+        
+        collectgarbage("step")
+    end
+end
+
 -- ========== 游戏加载等待函数 ==========
 local function waitForGameLoad()
     local players = game:GetService("Players")
     while not players.LocalPlayer do
         task.wait(1)
     end
-    task.wait(3) -- 额外等待UI加载
+    task.wait(5)
 end
 
 -- ========== 定期内存清理 ==========
 task.spawn(function()
     while true do
-        task.wait(30) -- 每30秒清理一次
+        task.wait(60) -- 每60秒清理一次
         pcall(cleanupMemory)
     end
 end)
@@ -303,12 +440,14 @@ end)
 -- ========== 主启动函数 ==========
 task.spawn(function()
     waitForGameLoad()
-    debugLog("启动优化版翻译引擎")
+    debugLog("启动锁定式翻译引擎")
+    setupWindowStateDetection()
     setupTranslationEngine()
 end)
 
--- ========== 外部脚本加载（可选） ==========
+-- ========== 外部脚本加载 ==========
 task.spawn(function()
+    task.wait(10)
     local success, err = pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
     end)
@@ -318,4 +457,30 @@ task.spawn(function()
     end
 end)
 
-debugLog("翻译脚本初始化完成")
+-- ========== 管理函数 ==========
+local function refreshTranslation()
+    debugLog("手动刷新翻译引擎")
+    refreshUIState()
+end
+
+local function unlockAllTranslations()
+    debugLog("解锁所有翻译")
+    TranslationLocks = {}
+    LockedTexts = {}
+    refreshUIState()
+end
+
+local function getLockedCount()
+    local count = 0
+    for _ in pairs(TranslationLocks) do
+        count = count + 1
+    end
+    return count
+end
+
+-- 暴露给外部调用的函数
+getgenv().RefreshTranslation = refreshTranslation
+getgenv().UnlockAllTranslations = unlockAllTranslations
+getgenv().GetLockedTranslationCount = getLockedCount
+
+debugLog("锁定式翻译引擎初始化完成 - 已翻译文本将被固定")
