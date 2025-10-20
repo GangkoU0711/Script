@@ -54,7 +54,7 @@ local Translations = {
      ["This script is made by L4BIB. Join the Discord server for support and updates."] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新。",
      ["Version"] = "版本",
      ["Last Updated"] = "最后更新",
-     ["Credits"] = "致谢",
+     ["Credits"] = "汉化byTh",
      ["Script Developer"] = "脚本开发者",
      -- 特定首领/怪物名称 (选择性翻译，通常保留原名更有辨识度)
      ["Kokushibo"] = "黑死牟",
@@ -147,7 +147,12 @@ local Translations = {
      -- 部分匹配
      for en, cn in pairs(Translations) do
          if text:find(en, 1, true) then -- 使用简单查找而非模式匹配
-             debugLog("未匹配: '" .. text .. "'")
+             debugLog("部分匹配: '" .. text .. "' -> '" .. cn .. "'")
+             return text:gsub(en, cn)
+         end
+     end
+     
+     debugLog("未匹配: '" .. text .. "'")
      return text
  end
  local function setupTranslationEngine()
