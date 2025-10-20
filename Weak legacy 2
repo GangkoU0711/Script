@@ -56,7 +56,7 @@ local Translations = {
     ["Last Updated"] = "最后更新",
     ["Credits"] = "致谢",
     ["Script Developer"] = "脚本开发者",
-    -- 特定首领/怪物名称
+    -- 特定首领/怪物名称 (选择性翻译，通常保留原名更有辨识度)
     ["Kokushibo"] = "黑死牟",
     ["Hair Dream Manipulation User"] = "发梦操纵者",
     ["Weak Demon"] = "弱小鬼",
@@ -81,7 +81,7 @@ local Translations = {
     ["Douma"] = "童磨",
     ["Yorilchi (Half Form)"] = "缘一 (半形态)",
     ["Tengen"] = "天元",
-    -- 补充界面文本
+    -- 补充界面中出现的文本
     ["Main Village"] = "主村庄",
     ["Final Selection"] = "最终选拔",
     ["Little Village"] = "小村庄",
@@ -113,123 +113,133 @@ local Translations = {
     ["Douma"] = "童磨",
     ["Tengen"] = "宇髄天元",
     ["Auto Dungeon Farm"] = "自动地下城刷怪",
-    ["Reset Timmer"] = "重置计时器",
+    ["Reset Timmer"] = "重置计时器", -- 注意原界面是Timmer，这里保持一致
     ["L4BIB HUB"] = "L4BIB  hub",
     ["UPD 4.75"] = "版本4.75",
     ["Weak Legacy 2"] = "Weak Legacy 2"
 }
 
--- 开启调试日志，强制显示所有扫描/翻译过程
+-- 添加调试功能
 local debugMode = true
 local function debugLog(message)
-    print("[最终汉化调试] " .. message)
-end
-
--- 预缓存翻译表（优化性能）
-local cachedTranslations = {}
-for en, cn in pairs(Translations) do
-    cachedTranslations[en:lower():gsub("%s+", "")] = cn
-    cachedTranslations[en] = cn
+    if debugMode then
+        print("[翻译调试] " .. message)
+    end
 end
 
 local function translateText(text)
     if not text or type(text) ~= "string" then return text end
-    local textLower = text:lower():gsub("%s+", "")
     
-    if cachedTranslations[text] then
-        debugLog("精确匹配: '" .. text .. "' -> '" .. cachedTranslations[text] .. "'")
-        return cachedTranslations[text]
-    elseif cachedTranslations[textLower] then
-        debugLog("模糊匹配: '" .. text .. "' -> '" .. cachedTranslations[textLower] .. "'")
-        return cachedTranslations[textLower]
+    -- 精确匹配
+    if Translations[text] then
+        debugLog("精确匹配: '" .. text .. "' -> '" .. Translations[text] .. "'")
+        return Translations[text]
+    end
+    
+    -- 模糊匹配（忽略大小写和空格）
+    local lowerText = text:lower():gsub("%s+", "")
+    for en, cn in pairs(Translations) do
+        local lowerEn = en:lower():gsub("%s+", "")
+        if lowerText == lowerEn then
+            debugLog("模糊匹配: '" .. text .. "' -> '" .. cn .. "'")
+            return cn
+        end
+    end
+    
+    -- 部分匹配
+    for en, cn in pairs(Translations) do
+        if text:find(en, 1, true) then -- 使用简单查找而非模式匹配
+            debugLog("部分匹配: '" .. text .. "' -> '" .. cn .. "'")
+            return text:gsub(en, cn)
+        end
     end
     
     debugLog("未匹配: '" .. text .. "'")
     return text
 end
 
-local function translateGuiElement(gui)
-    if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
-    local text = gui.Text
-    if not text or text == "" then return end
-    
-    if gui:GetAttribute("FinalTranslated") then return end
-    local translated = translateText(text)
-    if translated ~= text then
-        gui.Text = translated
-        gui:SetAttribute("FinalTranslated", true)
-        debugLog("已翻译: " .. gui:GetFullName())
+local function setupTranslationEngine()
+    local function translateGuiElement(gui)
+        if not gui:IsA("TextLabel") and not gui:IsA("TextButton") and not gui:IsA("TextBox") then return end
+        
+        local text = gui.Text
+        if text and text ~= "" then
+            local translated = translateText(text)
+            if translated ~= text then
+                gui.Text = translated
+                debugLog("已翻译: " .. gui:GetFullName())
+            end
+        end
     end
-end
 
-local function scanGui(parent)
-    debugLog("扫描容器: " .. parent:GetFullName())
-    for _, gui in ipairs(parent:GetChildren()) do
-        pcall(translateGuiElement, gui)
-        if #gui:GetChildren() > 0 then
+    local function scanGui(parent)
+        debugLog("扫描: " .. parent:GetFullName())
+        for _, gui in ipairs(parent:GetDescendants()) do
+            pcall(translateGuiElement, gui)
+        end
+    end
+
+    local function setupDescendantListener(parent)
+        parent.DescendantAdded:Connect(function(descendant)
+            task.wait(0.1) -- 给元素一些时间初始化
+            pcall(translateGuiElement, descendant)
+        end)
+    end
+
+    -- 尝试元表劫持
+    local success, err = pcall(function()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        
+        local oldIndex = mt.__newindex
+        mt.__newindex = newcclosure(function(t, k, v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
+                v = translateText(tostring(v))
+            end
+            return oldIndex(t, k, v)
+        end)
+        
+        setreadonly(mt, true)
+        debugLog("元表劫持成功")
+    end)
+
+    if not success then
+        debugLog("元表劫持失败: " .. tostring(err))
+        debugLog("使用备用方案")
+        
+        local guisToScan = {game:GetService("CoreGui")}
+        local player = game:GetService("Players").LocalPlayer
+        if player and player:FindFirstChild("PlayerGui") then
+            table.insert(guisToScan, player.PlayerGui)
+        end
+
+        -- 初始扫描
+        for _, gui in ipairs(guisToScan) do
+            pcall(setupDescendantListener, gui)
             pcall(scanGui, gui)
         end
+
+        -- 定期扫描（使用协程避免阻塞）
+        coroutine.wrap(function()
+            while true do
+                for _, gui in ipairs(guisToScan) do
+                    pcall(scanGui, gui)
+                end
+                task.wait(3)
+            end
+        end)()
     end
 end
 
-local function setupDescendantListener(parent)
-    parent.DescendantAdded:Connect(function(descendant)
-        task.wait(0.5) -- 延长等待，确保UI完全加载
-        pcall(translateGuiElement, descendant)
-    end)
-    debugLog("已监听容器: " .. parent:GetFullName())
-end
+-- 等待游戏加载完成
+task.wait(5)
+debugLog("启动翻译引擎")
+setupTranslationEngine()
 
-debugLog("启动最终汉化引擎")
-
--- 强制扫描所有可能的UI容器（保底逻辑）
-local function forceScanAllGUIs()
-    local coreGui = game:GetService("CoreGui")
-    local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
-    
-    -- 扫描CoreGui所有子容器
-    for _, child in ipairs(coreGui:GetChildren()) do
-        pcall(setupDescendantListener, child)
-        pcall(scanGui, child)
-    end
-    
-    -- 扫描PlayerGui所有子容器
-    if playerGui then
-        for _, child in ipairs(playerGui:GetChildren()) do
-            pcall(setupDescendantListener, child)
-            pcall(scanGui, child)
-        end
-    end
-end
-
--- 等待游戏完全加载（延长到8秒）
-task.wait(8)
-forceScanAllGUIs()
-
--- 定期扫描（5秒一次，确保动态UI）
-coroutine.wrap(function()
-    while true do
-        debugLog("定期扫描触发")
-        forceScanAllGUIs()
-        task.wait(5)
-    end
-end)()
-
--- 外部脚本加载（单独处理，若失败不影响汉化）
+-- 外部脚本加载
 local success, err = pcall(function()
-    local httpService = game:GetService("HttpService")
-    local request = httpService:RequestAsync({
-        Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
-        Method = "GET",
-        Timeout = 10 -- 延长超时到10秒
-    })
-    if request.Success then
-        debugLog("外部脚本加载成功，执行中...")
-        loadstring(request.Body)()
-    else
-        warn("外部脚本加载失败，状态码:", request.StatusCode)
-    end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
 end)
 if not success then
-    warn("外部脚本加载异常，原因:", err)
+    warn("外部脚本加载失败:", err)
 end
