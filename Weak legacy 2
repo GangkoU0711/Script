@@ -118,73 +118,74 @@ local Translations = {
      ["UPD 4.75"] = "版本4.75",
      ["Weak Legacy 2"] = "Weak Legacy 2"
  }
- -- 添加调试功能
- local debugMode = true
+-- 1. 关闭调试日志（减少打印消耗）+ 预缓存翻译表（避免重复处理）
+ local debugMode = false -- 关键：关闭调试，减少CPU占用
  local function debugLog(message)
      if debugMode then
          print("[翻译调试] " .. message)
      end
  end
+ -- 预生成「小写无空格」版本的翻译表，避免每次匹配都重复处理字符串
+ local cachedTranslations = {}
+ for en, cn in pairs(Translations) do
+     cachedTranslations[en:lower():gsub("%s+", "")] = cn
+     cachedTranslations[en] = cn -- 保留原字符串缓存
+ end
+ -- 2. 简化translateText函数（减少循环次数+重复计算）
  local function translateText(text)
      if not text or type(text) ~= "string" then return text end
+     local textLower = text:lower():gsub("%s+", "")
      
-     -- 精确匹配
-     if Translations[text] then
-         debugLog("精确匹配: '" .. text .. "' -> '" .. Translations[text] .. "'")
-         return Translations[text]
+     -- 优先用预缓存匹配，减少重复处理
+     if cachedTranslations[text] then
+         debugLog("精确匹配: '" .. text .. "' -> '" .. cachedTranslations[text] .. "'")
+         return cachedTranslations[text]
+     elseif cachedTranslations[textLower] then
+         debugLog("模糊匹配: '" .. text .. "' -> '" .. cachedTranslations[textLower] .. "'")
+         return cachedTranslations[textLower]
      end
      
-     -- 模糊匹配（忽略大小写和空格）
-     local lowerText = text:lower():gsub("%s+", "")
-     for en, cn in pairs(Translations) do
-         local lowerEn = en:lower():gsub("%s+", "")
-         if lowerText == lowerEn then
-             debugLog("模糊匹配: '" .. text .. "' -> '" .. cn .. "'")
-             return cn
-         end
-     end
-     
-     -- 部分匹配
-     for en, cn in pairs(Translations) do
-         if text:find(en, 1, true) then -- 使用简单查找而非模式匹配
-             debugLog("部分匹配: '" .. text .. "' -> '" .. cn .. "'")
-             return text:gsub(en, cn)
-         end
-     end
-     
+     -- 移除低效的「部分匹配」（多数场景用不到，且循环耗资源）
      debugLog("未匹配: '" .. text .. "'")
      return text
  end
- local function setupTranslationEngine()
+ -- 3. 优化UI翻译逻辑（减少扫描频率+避免重复处理）
+ local setupTranslationEngine = function()
      local function translateGuiElement(gui)
-         if not gui:IsA("TextLabel") and not gui:IsA("TextButton") and not gui:IsA("TextBox") then return end
-         
+         if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
          local text = gui.Text
-         if text and text ~= "" then
-             local translated = translateText(text)
-             if translated ~= text then
-                 gui.Text = translated
-                 debugLog("已翻译: " .. gui:GetFullName())
-             end
+         if not text or text == "" then return end
+         
+         -- 记录原文本，避免重复翻译同一内容
+         if gui:GetAttribute("Translated") then return end
+         local translated = translateText(text)
+         if translated ~= text then
+             gui.Text = translated
+             gui:SetAttribute("Translated", true) -- 标记已翻译，后续不重复处理
+             debugLog("已翻译: " .. gui:GetFullName())
          end
      end
      local function scanGui(parent)
          debugLog("扫描: " .. parent:GetFullName())
-         for _, gui in ipairs(parent:GetDescendants()) do
+         -- 用ipairs遍历子元素，递归处理但控制深度
+         for _, gui in ipairs(parent:GetChildren()) do -- 改用GetChildren，减少Descendants深度遍历
              pcall(translateGuiElement, gui)
+             -- 仅当子元素有子节点时递归，避免过度消耗
+             if #gui:GetChildren() > 0 then
+                 pcall(scanGui, gui)
+             end
          end
      end
      local function setupDescendantListener(parent)
          parent.DescendantAdded:Connect(function(descendant)
-             task.wait(0.1) -- 给元素一些时间初始化
+             task.wait(0.3) -- 延长等待时间，避免元素未初始化就翻译
              pcall(translateGuiElement, descendant)
          end)
      end
-     -- 尝试元表劫持
+     -- 元表劫持逻辑保留，失败后降级优化
      local success, err = pcall(function()
          local mt = getrawmetatable(game)
          setreadonly(mt, false)
-         
          local oldIndex = mt.__newindex
          mt.__newindex = newcclosure(function(t, k, v)
              if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
@@ -192,43 +193,53 @@ local Translations = {
              end
              return oldIndex(t, k, v)
          end)
-         
          setreadonly(mt, true)
          debugLog("元表劫持成功")
      end)
      if not success then
          debugLog("元表劫持失败: " .. tostring(err))
-         debugLog("使用备用方案")
-         
          local guisToScan = {game:GetService("CoreGui")}
          local player = game:GetService("Players").LocalPlayer
-         if player and player:FindFirstChild("PlayerGui") then
+         if player and player.PlayerGui then
              table.insert(guisToScan, player.PlayerGui)
          end
-         -- 初始扫描
+         -- 初始扫描后，延长定期扫描间隔（3秒→10秒）
          for _, gui in ipairs(guisToScan) do
              pcall(setupDescendantListener, gui)
              pcall(scanGui, gui)
          end
-         -- 定期扫描（使用协程避免阻塞）
+         -- 定期扫描加状态控制，避免无限循环占用资源
+         local isScanning = false
          coroutine.wrap(function()
-             while true do
+             while not isScanning do
+                 isScanning = true
                  for _, gui in ipairs(guisToScan) do
                      pcall(scanGui, gui)
                  end
-                 task.wait(3)
+                 task.wait(10) -- 关键：延长间隔降低CPU负载
+                 isScanning = false
              end
          end)()
      end
  end
- -- 等待游戏加载完成
+ -- 4. 优化外部脚本加载（增加超时控制）
  task.wait(5)
  debugLog("启动翻译引擎")
  setupTranslationEngine()
- -- 外部脚本加载
+ -- 外部脚本加载：超时5秒+错误捕获
  local success, err = pcall(function()
-     loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
+     local httpService = game:GetService("HttpService")
+     local request = httpService:RequestAsync({
+         Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
+         Method = "GET",
+         Timeout = 5
+     })
+     if request.Success then
+         loadstring(request.Body)()
+     else
+         warn("外部脚本请求失败，状态码:", request.StatusCode)
+     end
  end)
  if not success then
-     warn("外部脚本加载失败:", err)
+     warn("外部脚本加载失败，原因:", err)
  end
