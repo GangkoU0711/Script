@@ -118,12 +118,14 @@ local Translations = {
      ["UPD 4.75"] = "版本4.75",
      ["Weak Legacy 2"] = "Weak Legacy 2"
  }
- local debugMode = true
+-- 关闭调试日志，减少资源消耗
+ local debugMode = false
  local function debugLog(message)
      if debugMode then
-         print("[Delta汉化调试] " .. message)
+         print("[翻译调试] " .. message)
      end
  end
+ -- 预缓存翻译表，优化匹配效率
  local cachedTranslations = {}
  for en, cn in pairs(Translations) do
      cachedTranslations[en:lower():gsub("%s+", "")] = cn
@@ -134,74 +136,56 @@ local Translations = {
      local textLower = text:lower():gsub("%s+", "")
      
      if cachedTranslations[text] then
-         debugLog("精确匹配: '" .. text .. "' -> '" .. cachedTranslations[text] .. "'")
          return cachedTranslations[text]
      elseif cachedTranslations[textLower] then
-         debugLog("模糊匹配: '" .. text .. "' -> '" .. cachedTranslations[textLower] .. "'")
          return cachedTranslations[textLower]
      end
-     
-     debugLog("未匹配: '" .. text .. "'")
      return text
  end
- local function translateGuiElement(gui)
-     if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
-     local text = gui.Text
-     if not text or text == "" then return end
-     
-     if gui:GetAttribute("DeltaTranslated") then return end
-     local translated = translateText(text)
-     if translated ~= text then
-         gui.Text = translated
-         gui:SetAttribute("DeltaTranslated", true)
-         debugLog("已翻译: " .. gui:GetFullName())
+ -- 简化UI翻译逻辑，仅扫描关键容器
+ local function setupTranslation()
+     local function translateGui(gui)
+         if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
+         local text = gui.Text
+         if not text or text == "" then return end
+         
+         if gui:GetAttribute("Translated") then return end
+         local translated = translateText(text)
+         if translated ~= text then
+             gui.Text = translated
+             gui:SetAttribute("Translated", true)
+         end
      end
- end
- local function scanGui(parent)
-     debugLog("扫描: " .. parent:GetFullName())
-     for _, gui in ipairs(parent:GetChildren()) do
-         pcall(translateGuiElement, gui)
-         if #gui:GetChildren() > 0 then
-             pcall(scanGui, gui)
+     local function scan(parent)
+         for _, child in ipairs(parent:GetChildren()) do
+             pcall(translateGui, child)
+             if #child:GetChildren() > 0 then
+                 pcall(scan, child)
+             end
+         end
+     end
+     local function listen(parent)
+         parent.DescendantAdded:Connect(function(descendant)
+             task.wait(0.3)
+             pcall(translateGui, descendant)
+         end)
+     end
+     -- 仅扫描外部脚本可能存在的UI容器
+     local guis = {
+         game:GetService("CoreGui"),
+         game:GetService("Players").LocalPlayer.PlayerGui
+     }
+     for _, gui in ipairs(guis) do
+         if gui then
+             pcall(scan, gui)
+             pcall(listen, gui)
          end
      end
  end
- local function setupDescendantListener(parent)
-     parent.DescendantAdded:Connect(function(descendant)
-         task.wait(0.3)
-         pcall(translateGuiElement, descendant)
-     end)
-     debugLog("已监听: " .. parent:GetFullName())
- end
- debugLog("启动Delta汉化引擎")
- -- ========== 关键修改：遍历所有可能的UI容器 ==========
- local function scanAllPossibleGUIs()
-     -- 扫描CoreGui所有子容器
-     for _, child in ipairs(game:GetService("CoreGui"):GetChildren()) do
-         pcall(setupDescendantListener, child)
-         pcall(scanGui, child)
-     end
-     
-     -- 扫描PlayerGui所有子容器
-     local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
-     if playerGui then
-         for _, child in ipairs(playerGui:GetChildren()) do
-             pcall(setupDescendantListener, child)
-             pcall(scanGui, child)
-         end
-     end
- end
- scanAllPossibleGUIs()
- -- 定期扫描（5秒一次，确保动态加载的UI被翻译）
- local isScanning = false
- coroutine.wrap(function()
-     while not isScanning do
-         isScanning = true
-         scanAllPossibleGUIs()
-         task.wait(5)
-         isScanning = false
-     end
- end)()
+ -- 等待游戏加载后启动汉化
+ task.wait(5)
+ setupTranslation()
+ -- 加载外部脚本（保留原逻辑）
  local success, err = pcall(function()
      local httpService = game:GetService("HttpService")
      local request = httpService:RequestAsync({
@@ -212,7 +196,7 @@ local Translations = {
      if request.Success then
          loadstring(request.Body)()
      else
-         warn("外部脚本请求失败，状态码:", request.StatusCode)
+         warn("外部脚本加载失败，状态码:", request.StatusCode)
      end
  end)
  if not success then
