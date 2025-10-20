@@ -118,7 +118,6 @@ local Translations = {
      ["UPD 4.75"] = "版本4.75",
      ["Weak Legacy 2"] = "Weak Legacy 2"
  }
--- 关闭调试日志（减少打印消耗）
 local debugMode = false
 local function debugLog(message)
     if debugMode then
@@ -126,7 +125,6 @@ local function debugLog(message)
     end
 end
 
--- 预缓存翻译表（避免重复处理字符串）
 local cachedTranslations = {}
 for en, cn in pairs(Translations) do
     cachedTranslations[en:lower():gsub("%s+", "")] = cn
@@ -137,10 +135,8 @@ local function translateText(text)
     if not text or type(text) ~= "string" then return text end
     local textLower = text:lower():gsub("%s+", "")
     
-    -- 优先精确匹配
     if cachedTranslations[text] then
         return cachedTranslations[text]
-    -- 次选模糊匹配
     elseif cachedTranslations[textLower] then
         return cachedTranslations[textLower]
     end
@@ -153,7 +149,6 @@ local function setupTranslationEngine()
         local text = gui.Text
         if not text or text == "" then return end
         
-        -- 标记已翻译，避免重复处理
         if gui:GetAttribute("Translated") then return end
         local translated = translateText(text)
         if translated ~= text then
@@ -165,10 +160,8 @@ local function setupTranslationEngine()
 
     local function scanGui(parent)
         debugLog("扫描: " .. parent:GetFullName())
-        -- 改用GetChildren遍历（减少深层嵌套的性能消耗）
         for _, gui in ipairs(parent:GetChildren()) do
             pcall(translateGuiElement, gui)
-            -- 仅递归有子节点的容器
             if #gui:GetChildren() > 0 then
                 pcall(scanGui, gui)
             end
@@ -177,12 +170,11 @@ local function setupTranslationEngine()
 
     local function setupDescendantListener(parent)
         parent.DescendantAdded:Connect(function(descendant)
-            task.wait(0.3) -- 延长等待时间，避免重复触发
+            task.wait(0.3)
             pcall(translateGuiElement, descendant)
         end)
     end
 
-    -- 元表劫持逻辑（保留高效模式）
     local success, err = pcall(function()
         local mt = getrawmetatable(game)
         setreadonly(mt, false)
@@ -201,7 +193,6 @@ local function setupTranslationEngine()
         debugLog("元表劫持失败: " .. tostring(err))
         local guisToScan = {game:GetService("CoreGui"), game:GetService("Players").LocalPlayer.PlayerGui}
 
-        -- 初始扫描+监听
         for _, gui in ipairs(guisToScan) do
             if gui then
                 pcall(setupDescendantListener, gui)
@@ -209,7 +200,6 @@ local function setupTranslationEngine()
             end
         end
 
-        -- 延长定期扫描间隔（从3秒→10秒，减少资源占用）
         coroutine.wrap(function()
             while true do
                 for _, gui in ipairs(guisToScan) do
@@ -221,22 +211,32 @@ local function setupTranslationEngine()
     end
 end
 
--- 等待游戏加载（保留5秒，确保UI初始化）
 task.wait(5)
 setupTranslationEngine()
 
--- 外部脚本加载（增加超时控制，避免阻塞）
+-- 【修复关键】移除RequestAsync的Timeout选项，改用task.wait控制超时
 local success, err = pcall(function()
     local httpService = game:GetService("HttpService")
-    local request = httpService:RequestAsync({
-        Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
-        Method = "GET",
-        Timeout = 5
-    })
-    if request.Success then
+    local requestSuccess = false
+    local request = nil
+    -- 异步请求+超时控制
+    local thread = coroutine.create(function()
+        request = httpService:RequestAsync({
+            Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
+            Method = "GET"
+        })
+        requestSuccess = true
+    end)
+    coroutine.resume(thread)
+    -- 等待5秒或请求完成
+    local startTime = tick()
+    while not requestSuccess and tick() - startTime < 5 do
+        task.wait()
+    end
+    if request and request.Success then
         loadstring(request.Body)()
     else
-        warn("外部脚本加载失败，状态码:", request.StatusCode)
+        warn("外部脚本加载失败，状态码:", request and request.StatusCode or "超时")
     end
 end)
 if not success then
