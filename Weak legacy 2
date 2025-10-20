@@ -1,14 +1,18 @@
 local Translations = {
-    -- 主导航栏
+    -- 主菜单和导航
+    -- 主导航栏和主菜单
     ["Welcome"] = "欢迎",
+    ["Main"] = "主界面",
     ["Farming"] = "刷怪",
+    ["Misc"] = "杂项",
     ["Teleport"] = "传送",
     ["Local Player"] = "本地玩家",
     ["Dungeons"] = "地下城",
     ["Settings"] = "设置",
     ["About"] = "关于",
-    -- Farming（刷怪）模块
     ["Options"] = "选项",
+
+    -- Farming（刷怪）模块
     ["Farming Distance"] = "刷怪距离",
     ["Farming Type"] = "刷怪类型",
     ["Method 2"] = "方法2",
@@ -24,54 +28,128 @@ local Translations = {
     ["Select Event Boss"] = "选择事件首领",
     ["Event Boss Farm"] = "自动刷事件首领",
     ["This Will Farm Event Bosses Automatically"] = "这将自动刷杀事件首领",
+
+    -- 设置和偏移选项
+    ["Offset Position"] = "位置偏移",
+    ["Adjust the position offset for Auto Farming"] = "调整自动刷怪的位置偏移量",
+    ["Offset Distance"] = "距离偏移",
+    ["Adjust the Distance Offset for Auto Farming"] = "调整自动刷怪的距离偏移量",
+    ["Auto Take Quest"] = "自动接任务",
+    ["Take Quest To The Farming Mob Automatically"] = "自动接取刷怪目标的任务",
+    ["Above Mob"] = "怪物上方",
+
     -- 杂项功能
-    ["Misc"] = "杂项",
     ["Select Weapon"] = "选择武器",
     ["If not working just equip combat or any katana from inventory"] = "如果无效，请从背包装备战斗或任意武士刀",
     ["Sword/Combat"] = "剑/战斗",
     ["Auto Equip Weapon"] = "自动装备武器",
     ["Turn This Off If You Don't Want To Auto Equip Weapon"] = "如不想自动装备武器请关闭此功能",
     ["Instant Kill"] = "秒杀",
+    ["InstantKill"] = "秒杀",
+    ["Mobs will instantly die after taking 10% damage"] = "怪物受到10%伤害后立即死亡",
     ["Mobs will instantly die after taking 10% damage."] = "怪物受到10%伤害后立即死亡。",
+    ["InstantKill Doesn't Work Inside Dungeons"] = "秒杀在地下城内无效",
+    ["Using Instant Kill May Cause Issues While Farming Dungeons"] = "使用秒杀可能导致刷地下城时出现问题",
     ["Auto Breath"] = "自动呼吸",
     ["Automatically breathes"] = "自动进行呼吸",
     ["Auto Buff"] = "自动增益",
     ["Automatically buffs"] = "自动施放增益效果",
     ["Auto Skills"] = "自动技能",
     ["Automatically uses skills"] = "自动使用技能",
+    ["Server Hop"] = "切换服务器",
+    ["Other"] = "其他",
+
     -- Dungeons（地下城）模块
     ["Teleport to Dungeon"] = "传送到地下城",
     ["Teleports you to the dungeon entrance"] = "将你传送到地下城入口",
     ["Auto Dungeon Farm"] = "自动刷地下城",
     ["Only works inside the dungeon"] = "仅在地下城内生效",
+    ["Auto Any Dungeon Farm"] = "自动刷任意地下城",
+    ["Work Inside Any Dungeons"] = "在任意地下城内生效",
+
     -- Settings（设置）模块
     ["Reset Timer"] = "重置计时器",
     ["Time in seconds to reset the character"] = "重置角色的时间（秒）",
     ["Auto Reset"] = "自动重置",
     ["Automatically resets the character in selected time"] = "在选定时间自动重置角色",
+
+    -- 配置管理
+    ["Configuration"] = "配置管理",
+    ["Config name"] = "配置名称",
+    ["Config list"] = "配置列表",
+    ["Create config"] = "创建配置",
+    ["Load config"] = "加载配置",
+    ["Overwrite config"] = "覆盖配置",
+    ["Refresh list"] = "刷新列表",
+    ["Set as autoload"] = "设为自动加载",
+    ["Current autoload config none"] = "当前自动加载配置：无",
+
+    -- 界面设置
+    ["Interface"] = "界面",
+    ["Theme"] = "主题",
+    ["Changes the interface theme."] = "更改界面主题。",
+    ["Dark"] = "暗色",
+    ["Transparency"] = "透明度",
+    ["Makes the interface transparent."] = "使界面透明。",
+    ["Minimize Bind"] = "最小化快捷键",
+    ["Data"] = "数据",
+    ["TYPE"] = "类型",
+
+    -- 传送功能
+    ["Teleport Locations"] = "传送地点",
+    ["Locations"] = "地点",
+    ["Select Location"] = "选择地点",
+    ["Teleports you to the selected location"] = "将你传送到选定地点",
+    ["Teleports you to the selected location."] = "将你传送到选定地点。",
+    ["NPCs"] = "NPC",
+    ["Select NPC"] = "选择NPC",
+    ["Teleports you to the selected NPC"] = "将你传送到选定NPC",
+
+    -- 地点名称
+    ["Main Village"] = "主村庄",
+    ["Final Selection"] = "最终选拔",
+    ["Little Village"] = "小村庄",
+    ["Demon Slayer Corp"] = "鬼杀队总部",
+    ["Danger Zone"] = "危险区域",
+    ["Winter Village"] = "冬村庄",
+    ["Mugen Train Raid"] = "无限列车篇",
+
+    -- 控制台
+    ["Roblox Console"] = "Roblox控制台",
+    ["Console that get outputs from ROBLOX console and display it in this menu."] = "获取ROBLOX控制台输出并在此菜单中显示。",
+    ["Delta Console"] = "Delta控制台",
+    ["Console that provides output, input from Delta API."] = "提供Delta API输入输出的控制台。",
+    ["CLEAR"] = "清空",
+
     -- About（关于）模块
     ["Info"] = "信息",
     ["This script is made by L4BIB. Join the Discord server for support and updates."] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新。",
+    ["This script is made by L4BIB. Join the Discord server for support and updates"] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新",
     ["Version"] = "版本",
     ["Last Updated"] = "最后更新",
-    ["Credits"] = "致谢",
+    ["Credits"] = "汉化来自TH 感谢使用！",
     ["Script Developer"] = "脚本开发者",
-    -- 特定首领/怪物名称
+    ["Links"] = "链接",
+
+    -- 特定首领/怪物名称 (鬼灭之刃角色)
     ["Kokushibo"] = "黑死牟",
     ["Hair Dream Manipulation User"] = "发梦操纵者",
     ["Weak Demon"] = "弱小鬼",
+    ["Week Demon"] = "弱小鬼",
     ["Lower Moon Demon 6"] = "下弦之陆",
     ["Lower Moon Demon 5"] = "下弦之伍",
     ["Lower Moon Demon 4"] = "下弦之肆",
     ["Demon"] = "鬼",
     ["Speed Art User"] = "速之艺术使用者",
     ["Dream Manipulation User"] = "梦境操纵者",
+    ["Half Dream Manipulation User"] = "半梦境操纵者",
     ["Mutated Demon"] = "变异鬼",
     ["Winter Demon"] = "冬鬼",
     ["Strong Demon"] = "强大鬼",
     ["Half Speed Art User"] = "半速艺术使用者",
     ["Missum"] = "蜜璃",
     ["Kanao"] = "香奈乎",
+    ["Zenitsu"] = "善逸",
     ["Zentisu"] = "善逸",
     ["Cputaro"] = "碳太郎",
     ["Tanjiro (Water)"] = "炭治郎 (水)",
@@ -80,358 +158,170 @@ local Translations = {
     ["Susamaru"] = "球鬼",
     ["Douma"] = "童磨",
     ["Yorilchi (Half Form)"] = "缘一 (半形态)",
+    ["Yorichi (Half Form)"] = "缘一 (半形态)",
+    ["Yoritchi (Half Form)"] = "缘一 (半形态)",
+    ["Yonichi (Half Form)"] = "缘一 (半形态)",
     ["Tengen"] = "天元",
-    -- 补充界面中出现的文本
-    ["Main Village"] = "主村庄",
-    ["Final Selection"] = "最终选拔",
-    ["Little Village"] = "小村庄",
-    ["Demon Slayer Corp"] = "鬼杀队",
-    ["Danger Zone"] = "危险区域",
-    ["Winter Village"] = "冬之村",
-    ["Yoriichi (Half Form)"] = "缘一 (半形态)",
-    ["Gyutaro"] = "妓夫太郎",
-    ["Obanai"] = "伊黑小芭内",
-    ["Kanroji Mitsuri"] = "甘露寺蜜璃",
-    ["Kochou Shinobu"] = "胡蝶忍",
-    ["Tomiyoka Giyuu"] = "冨冈义勇",
-    ["Tokito Muichiro"] = "时透无一郎",
-    ["Akaza"] = "猗窝座",
-    ["Hantengu"] = "半天狗",
-    ["Daki"] = "堕姬",
-    ["Awakened Kaigaku"] = "觉醒的狯岳",
-    ["Sanemi"] = "不死川实弥",
-    ["Rui"] = "累",
-    ["Kaigaku"] = "狯岳",
-    ["Yahaba"] = "矢琶羽",
+    ["Muzan"] = "无惨",
+    ["Obanai Iguro"] = "伊黑小芭内",
+    ["Rengoku"] = "炼狱",
     ["Nezuko"] = "祢豆子",
-    ["Rengoku"] = "炼狱杏寿郎",
-    ["Mitsuri"] = "蜜璃",
-    ["Zenitsu"] = "善逸",
+    ["Tokito"] = "时透",
+    ["Akaza"] = "猗窝座",
+    ["Kaigaku"] = "狯岳",
     ["Gyutaro"] = "妓夫太郎",
-    ["Obanai"] = "伊黑小芭内",
-    ["Susamaru"] = "手球鬼",
-    ["Douma"] = "童磨",
-    ["Tengen"] = "宇髄天元",
-    ["Auto Dungeon Farm"] = "自动地下城刷怪",
-    ["Reset Timmer"] = "重置计时器",
-    ["L4BIB HUB"] = "L4BIB  hub",
-    ["UPD 4.75"] = "版本4.75",
-    ["Weak Legacy 2"] = "Weak Legacy 2"
+    ["Cyutaro"] = "妓夫太郎",
+    ["Hantengu"] = "半天狗",
+    ["Shinobu"] = "忍",
+    ["Shinabu"] = "忍",
+    ["Daki"] = "堕姬",
+    ["Tomioka"] = "富冈",
+    ["Tomicka"] = "富冈",
+    ["Yahaba"] = "矢琶羽",
+    ["Awakened Kaigaku"] = "觉醒狯岳",
+
+    -- 任务相关
+    ["Quest Boss Dummy 1"] = "任务首领假人1",
+    ["Quest Boss Dummy 10"] = "任务首领假人10",
+    ["Quest Boss Dummy 11"] = "任务首领假人11",
+    ["Quest Boss Dummy 12"] = "任务首领假人12",
+    ["Quest Boss Dummy 13"] = "任务首领假人13",
+    ["Quest Boss Dummy 14"] = "任务首领假人14",
+    ["Quest Boss Dummy 15"] = "任务首领假人15",
+    ["Quest Boss Dummy 16"] = "任务首领假人16",
+    ["Quest Boss Dummy 5"] = "任务首领假人5",
+    ["Quest Boss Dummy 6"] = "任务首领假人6",
+    ["Quest Boss Dummy 7"] = "任务首领假人7",
+    ["Quest Boss Dummy 8"] = "任务首领假人8",
+    ["Quest Boss Dummy 9"] = "任务首领假人9",
+    ["Quest Dummy 1"] = "任务假人1",
+    ["Quest Dummy 10"] = "任务假人10",
+    ["Quest Dummy 11"] = "任务假人11",
+    ["Quest Dummy 12"] = "任务假人12",
+    ["Quest Dummy 2"] = "任务假人2",
+    ["Quest Dummy 3"] = "任务假人3",
 }
 
--- ========== 性能优化设置 ==========
-local debugMode = true -- 暂时开启调试以便发现问题
-local performanceMode = true
-
--- ========== 预编译匹配表 ==========
-local TranslationCache = {}
-local NormalizedTranslations = {}
-local ReverseTranslations = {} -- 反向查找表
-
-for en, cn in pairs(Translations) do
-    local normalized = en:lower():gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
-    NormalizedTranslations[normalized] = cn
-    ReverseTranslations[cn] = en -- 建立反向映射
-end
-
--- ========== 调试功能 ==========
+-- 添加调试功能
+local debugMode = true
 local function debugLog(message)
     if debugMode then
-        print("[翻译调试] " .. tostring(message))
+        print("[翻译调试] " .. message)
     end
 end
 
--- ========== 优化的翻译函数 ==========
 local function translateText(text)
-    if not text or type(text) ~= "string" or text == "" then 
-        return text 
-    end
-    
-    -- 检查缓存
-    if TranslationCache[text] then
-        return TranslationCache[text]
-    end
-    
-    -- 检查是否是已经翻译过的中文文本
-    if ReverseTranslations[text] then
-        TranslationCache[text] = text -- 已经是中文，保持原样
-        return text
-    end
+    if not text or type(text) ~= "string" then return text end
     
     -- 精确匹配
     if Translations[text] then
-        TranslationCache[text] = Translations[text]
-        debugLog("精确匹配: " .. text .. " -> " .. Translations[text])
+        debugLog("精确匹配: '" .. text .. "' -> '" .. Translations[text] .. "'")
         return Translations[text]
     end
     
-    -- 清理文本
-    local cleanedText = text:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
-    if Translations[cleanedText] then
-        TranslationCache[text] = Translations[cleanedText]
-        debugLog("清理匹配: " .. text .. " -> " .. Translations[cleanedText])
-        return Translations[cleanedText]
-    end
-    
-    -- 标准化匹配
-    local normalizedText = cleanedText:lower()
-    if NormalizedTranslations[normalizedText] then
-        TranslationCache[text] = NormalizedTranslations[normalizedText]
-        debugLog("标准化匹配: " .. text .. " -> " .. NormalizedTranslations[normalizedText])
-        return NormalizedTranslations[normalizedText]
-    end
-    
-    -- 部分匹配（更积极的匹配策略）
+    -- 模糊匹配（忽略大小写和空格）
+    local lowerText = text:lower():gsub("%s+", "")
     for en, cn in pairs(Translations) do
-        if text:find(en, 1, true) and #en > 3 then -- 只匹配长度大于3的文本
-            local translated = text:gsub(en, cn)
-            if translated ~= text then
-                TranslationCache[text] = translated
-                debugLog("部分匹配: " .. text .. " -> " .. translated)
-                return translated
-            end
+        local lowerEn = en:lower():gsub("%s+", "")
+        if lowerText == lowerEn then
+            debugLog("模糊匹配: '" .. text .. "' -> '" .. cn .. "'")
+            return cn
         end
     end
     
-    TranslationCache[text] = text
-    debugLog("未匹配: " .. text)
+    -- 部分匹配
+    for en, cn in pairs(Translations) do
+        if text:find(en, 1, true) then -- 使用简单查找而非模式匹配
+            debugLog("部分匹配: '" .. text .. "' -> '" .. cn .. "'")
+            return text:gsub(en, cn)
+        end
+    end
+    
+    debugLog("未匹配: '" .. text .. "'")
     return text
 end
 
--- ========== 简化的翻译引擎 ==========
-local function setupSimpleTranslationEngine()
-    debugLog("启动简化翻译引擎")
-    
-    local translatedElements = {} -- 记录已翻译的元素
-    
-    -- 立即翻译函数
-    local function translateElementImmediately(element)
-        if not element:IsA("TextLabel") and not element:IsA("TextButton") and not element:IsA("TextBox") then
-            return
-        end
+local function setupTranslationEngine()
+    local function translateGuiElement(gui)
+        if not gui:IsA("TextLabel") and not gui:IsA("TextButton") and not gui:IsA("TextBox") then return end
         
-        -- 检查是否可见
-        local parent = element
-        local isVisible = true
-        while parent do
-            if (parent:IsA("GuiObject") and not parent.Visible) or 
-               (parent:IsA("ScreenGui") and not parent.Enabled) then
-                isVisible = false
-                break
-            end
-            parent = parent.Parent
-        end
-        
-        if not isVisible then
-            return
-        end
-        
-        -- 检查是否已翻译
-        if translatedElements[element] then
-            return
-        end
-        
-        local text = element.Text
+        local text = gui.Text
         if text and text ~= "" then
             local translated = translateText(text)
             if translated ~= text then
-                pcall(function()
-                    element.Text = translated
-                    translatedElements[element] = true
-                    debugLog("成功翻译: " .. text .. " -> " .. translated)
-                end)
-            else
-                translatedElements[element] = true -- 即使是原文本也标记为已处理
+                gui.Text = translated
+                debugLog("已翻译: " .. gui:GetFullName())
             end
         end
     end
-    
-    -- 快速扫描函数
-    local function quickScan()
-        debugLog("开始快速扫描")
-        local coreGui = game:GetService("CoreGui")
-        local player = game:GetService("Players").LocalPlayer
-        local playerGui = player and player:FindFirstChild("PlayerGui")
-        
-        if not playerGui then
-            debugLog("未找到PlayerGui")
-            return
+
+    local function scanGui(parent)
+        debugLog("扫描: " .. parent:GetFullName())
+        for _, gui in ipairs(parent:GetDescendants()) do
+            pcall(translateGuiElement, gui)
         end
-        
-        local guisToScan = {coreGui, playerGui}
-        
-        for _, gui in ipairs(guisToScan) do
-            pcall(function()
-                local descendants = gui:GetDescendants()
-                debugLog("扫描 " .. gui.Name .. "，找到 " .. #descendants .. " 个子元素")
-                
-                for i, element in ipairs(descendants) do
-                    translateElementImmediately(element)
-                    
-                    -- 分批处理避免卡顿
-                    if i % 20 == 0 then
-                        task.wait(0.01)
-                    end
-                end
-            end)
-        end
-        debugLog("快速扫描完成")
     end
-    
-    -- 新元素监听
-    local function setupElementListener(gui)
-        pcall(function()
-            gui.DescendantAdded:Connect(function(element)
-                task.wait(0.2) -- 等待元素完全初始化
-                translateElementImmediately(element)
-            end)
+
+    local function setupDescendantListener(parent)
+        parent.DescendantAdded:Connect(function(descendant)
+            task.wait(0.1) -- 给元素一些时间初始化
+            pcall(translateGuiElement, descendant)
         end)
     end
-    
-    -- 初始扫描
-    quickScan()
-    
-    -- 设置监听
-    local coreGui = game:GetService("CoreGui")
-    local player = game:GetService("Players").LocalPlayer
-    local playerGui = player and player:FindFirstChild("PlayerGui")
-    
-    if coreGui then setupElementListener(coreGui) end
-    if playerGui then setupElementListener(playerGui) end
-    
-    -- 定期重新扫描（处理动态内容）
-    while true do
-        task.wait(5) -- 每5秒扫描一次
-        quickScan()
-    end
-end
 
--- ========== UI恢复检测 ==========
-local function setupUIRecoveryDetection()
-    debugLog("设置UI恢复检测")
-    
-    local coreGui = game:GetService("CoreGui")
-    local player = game:GetService("Players").LocalPlayer
-    local playerGui = player and player:WaitForChild("PlayerGui")
-    
-    -- 监听ScreenGui的启用状态
-    local function monitorScreenGui(screenGui)
-        pcall(function()
-            screenGui:GetPropertyChangedSignal("Enabled"):Connect(function()
-                if screenGui.Enabled then
-                    debugLog("ScreenGui启用: " .. screenGui.Name)
-                    task.wait(0.5) -- 等待UI完全加载
-                    setupSimpleTranslationEngine()
-                end
-            end)
-        end)
-    end
-    
-    -- 监听PlayerGui的子元素添加（新的ScreenGui）
-    if playerGui then
-        playerGui.ChildAdded:Connect(function(child)
-            if child:IsA("ScreenGui") then
-                debugLog("检测到新的ScreenGui: " .. child.Name)
-                task.wait(1)
-                monitorScreenGui(child)
-                setupSimpleTranslationEngine()
-            end
-        end)
-        
-        -- 监控现有的ScreenGui
-        for _, child in ipairs(playerGui:GetChildren()) do
-            if child:IsA("ScreenGui") then
-                monitorScreenGui(child)
-            end
-        end
-    end
-    
-    -- 强制刷新机制
-    local lastRefreshTime = 0
-    local function forceRefresh()
-        local currentTime = tick()
-        if currentTime - lastRefreshTime > 10 then -- 10秒冷却
-            lastRefreshTime = currentTime
-            debugLog("强制刷新翻译引擎")
-            setupSimpleTranslationEngine()
-        end
-    end
-    
-    -- 暴露强制刷新函数
-    getgenv().ForceRefreshTranslation = forceRefresh
-    
-    -- 定期检查UI状态
-    while true do
-        task.wait(3)
-        
-        -- 检查是否有可见但未翻译的UI
-        if playerGui then
-            local hasVisibleUI = false
-            for _, screenGui in ipairs(playerGui:GetChildren()) do
-                if screenGui:IsA("ScreenGui") and screenGui.Enabled then
-                    hasVisibleUI = true
-                    break
-                end
-            end
-            
-            if hasVisibleUI then
-                -- 随机进行快速检查
-                if math.random(1, 10) == 1 then
-                    forceRefresh()
-                end
-            end
-        end
-    end
-end
-
--- ========== 主启动函数 ==========
-task.spawn(function()
-    -- 等待游戏完全加载
-    local players = game:GetService("Players")
-    while not players.LocalPlayer do
-        task.wait(1)
-    end
-    
-    local player = players.LocalPlayer
-    while not player:FindFirstChild("PlayerGui") do
-        task.wait(1)
-    end
-    
-    task.wait(3) -- 额外等待UI加载
-    
-    debugLog("游戏加载完成，启动翻译系统")
-    
-    -- 启动翻译引擎
-    setupSimpleTranslationEngine()
-    
-    -- 启动UI恢复检测
-    setupUIRecoveryDetection()
-end)
-
--- ========== 外部脚本加载 ==========
-task.spawn(function()
-    task.wait(8) -- 等待翻译系统初始化
-    
+    -- 尝试元表劫持
     local success, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        
+        local oldIndex = mt.__newindex
+        mt.__newindex = newcclosure(function(t, k, v)
+            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
+                v = translateText(tostring(v))
+            end
+            return oldIndex(t, k, v)
+        end)
+        
+        setreadonly(mt, true)
+        debugLog("元表劫持成功")
     end)
 
     if not success then
-        warn("外部脚本加载失败:", err)
-    else
-        debugLog("外部脚本加载成功")
+        debugLog("元表劫持失败: " .. tostring(err))
+        debugLog("使用备用方案")
+        
+        local guisToScan = {game:GetService("CoreGui")}
+        local player = game:GetService("Players").LocalPlayer
+        if player and player:FindFirstChild("PlayerGui") then
+            table.insert(guisToScan, player.PlayerGui)
+        end
+
+        -- 初始扫描
+        for _, gui in ipairs(guisToScan) do
+            pcall(setupDescendantListener, gui)
+            pcall(scanGui, gui)
+        end
+
+        -- 定期扫描
+        while true do
+            for _, gui in ipairs(guisToScan) do
+                pcall(scanGui, gui)
+            end
+            task.wait(3)
+        end
     end
+end
+
+-- 等待游戏加载完成
+task.wait(5)
+debugLog("启动翻译引擎")
+setupTranslationEngine()
+
+-- 外部脚本加载（如果有需要）
+local success, err = pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
 end)
 
--- ========== 用户控制函数 ==========
-getgenv().RefreshTranslation = function()
-    debugLog("手动刷新翻译")
-    setupSimpleTranslationEngine()
+if not success then
+    warn("外部脚本加载失败:", err)
 end
-
-getgenv().ToggleDebug = function()
-    debugMode = not debugMode
-    debugLog("调试模式: " .. tostring(debugMode))
-end
-
-debugLog("翻译系统初始化完成 - 简化版引擎")
