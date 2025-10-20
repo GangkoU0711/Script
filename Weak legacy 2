@@ -1,130 +1,131 @@
 local Translations = {
-     -- 主导航栏
-     ["Welcome"] = "欢迎",
-     ["Farming"] = "刷怪",
-     ["Teleport"] = "传送",
-     ["Local Player"] = "本地玩家",
-     ["Dungeons"] = "地下城",
-     ["Settings"] = "设置",
-     ["About"] = "关于",
-     -- Farming（刷怪）模块
-     ["Options"] = "选项",
-     ["Farming Distance"] = "刷怪距离",
-     ["Farming Type"] = "刷怪类型",
-     ["Method 2"] = "方法2",
-     ["Mobs"] = "普通怪物",
-     ["Select Mob"] = "选择怪物",
-     ["Mob Farm"] = "自动刷怪",
-     ["This Will Farm Mobs Automatically"] = "这将自动刷杀怪物",
-     ["Boss"] = "首领",
-     ["Select Boss"] = "选择首领",
-     ["Boss Farm"] = "自动刷首领",
-     ["This Will Farm Bosses Automatically"] = "这将自动刷杀首领",
-     ["Event Boss"] = "事件首领",
-     ["Select Event Boss"] = "选择事件首领",
-     ["Event Boss Farm"] = "自动刷事件首领",
-     ["This Will Farm Event Bosses Automatically"] = "这将自动刷杀事件首领",
-     -- 杂项功能
-     ["Misc"] = "杂项",
-     ["Select Weapon"] = "选择武器",
-     ["If not working just equip combat or any katana from inventory"] = "如果无效，请从背包装备战斗或任意武士刀",
-     ["Sword/Combat"] = "剑/战斗",
-     ["Auto Equip Weapon"] = "自动装备武器",
-     ["Turn This Off If You Don't Want To Auto Equip Weapon"] = "如不想自动装备武器请关闭此功能",
-     ["Instant Kill"] = "秒杀",
-     ["Mobs will instantly die after taking 10% damage."] = "怪物受到10%伤害后立即死亡。",
-     ["Auto Breath"] = "自动呼吸",
-     ["Automatically breathes"] = "自动进行呼吸",
-     ["Auto Buff"] = "自动增益",
-     ["Automatically buffs"] = "自动施放增益效果",
-     ["Auto Skills"] = "自动技能",
-     ["Automatically uses skills"] = "自动使用技能",
-     -- Dungeons（地下城）模块
-     ["Teleport to Dungeon"] = "传送到地下城",
-     ["Teleports you to the dungeon entrance"] = "将你传送到地下城入口",
-     ["Auto Dungeon Farm"] = "自动刷地下城",
-     ["Only works inside the dungeon"] = "仅在地下城内生效",
-     -- Settings（设置）模块
-     ["Reset Timer"] = "重置计时器",
-     ["Time in seconds to reset the character"] = "重置角色的时间（秒）",
-     ["Auto Reset"] = "自动重置",
-     ["Automatically resets the character in selected time"] = "在选定时间自动重置角色",
-     -- About（关于）模块
-     ["Info"] = "信息",
-     ["This script is made by L4BIB. Join the Discord server for support and updates."] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新。",
-     ["Version"] = "版本",
-     ["Last Updated"] = "最后更新",
-     ["Credits"] = "汉化byTh",
-     ["Script Developer"] = "脚本开发者",
-     -- 特定首领/怪物名称 (选择性翻译，通常保留原名更有辨识度)
-     ["Kokushibo"] = "黑死牟",
-     ["Hair Dream Manipulation User"] = "发梦操纵者",
-     ["Weak Demon"] = "弱小鬼",
-     ["Lower Moon Demon 6"] = "下弦之陆",
-     ["Lower Moon Demon 5"] = "下弦之伍",
-     ["Lower Moon Demon 4"] = "下弦之肆",
-     ["Demon"] = "鬼",
-     ["Speed Art User"] = "速之艺术使用者",
-     ["Dream Manipulation User"] = "梦境操纵者",
-     ["Mutated Demon"] = "变异鬼",
-     ["Winter Demon"] = "冬鬼",
-     ["Strong Demon"] = "强大鬼",
-     ["Half Speed Art User"] = "半速艺术使用者",
-     ["Missum"] = "蜜璃",
-     ["Kanao"] = "香奈乎",
-     ["Zentisu"] = "善逸",
-     ["Cputaro"] = "碳太郎",
-     ["Tanjiro (Water)"] = "炭治郎 (水)",
-     ["Tanjiro (Sun)"] = "炭治郎 (日)",
-     ["Obama"] = "奥巴马",
-     ["Susamaru"] = "球鬼",
-     ["Douma"] = "童磨",
-     ["Yorilchi (Half Form)"] = "缘一 (半形态)",
-     ["Tengen"] = "天元",
-     -- 补充界面中出现的文本
-     ["Main Village"] = "主村庄",
-     ["Final Selection"] = "最终选拔",
-     ["Little Village"] = "小村庄",
-     ["Demon Slayer Corp"] = "鬼杀队",
-     ["Danger Zone"] = "危险区域",
-     ["Winter Village"] = "冬之村",
-     ["Yoriichi (Half Form)"] = "缘一 (半形态)",
-     ["Gyutaro"] = "妓夫太郎",
-     ["Obanai"] = "伊黑小芭内",
-     ["Kanroji Mitsuri"] = "甘露寺蜜璃",
-     ["Kochou Shinobu"] = "胡蝶忍",
-     ["Tomiyoka Giyuu"] = "冨冈义勇",
-     ["Tokito Muichiro"] = "时透无一郎",
-     ["Akaza"] = "猗窝座",
-     ["Hantengu"] = "半天狗",
-     ["Daki"] = "堕姬",
-     ["Awakened Kaigaku"] = "觉醒的狯岳",
-     ["Sanemi"] = "不死川实弥",
-     ["Rui"] = "累",
-     ["Kaigaku"] = "狯岳",
-     ["Yahaba"] = "矢琶羽",
-     ["Nezuko"] = "祢豆子",
-     ["Rengoku"] = "炼狱杏寿郎",
-     ["Mitsuri"] = "蜜璃",
-     ["Zenitsu"] = "善逸",
-     ["Gyutaro"] = "妓夫太郎",
-     ["Obanai"] = "伊黑小芭内",
-     ["Susamaru"] = "手球鬼",
-     ["Douma"] = "童磨",
-     ["Tengen"] = "宇髄天元",
-     ["Auto Dungeon Farm"] = "自动地下城刷怪",
-     ["Reset Timmer"] = "重置计时器", -- 注意原界面是Timmer，这里保持一致
-     ["L4BIB HUB"] = "L4BIB  hub",
-     ["UPD 4.75"] = "版本4.75",
-     ["Weak Legacy 2"] = "Weak Legacy 2"
- }
-local debugMode = false
+    -- 主导航栏
+    ["Welcome"] = "欢迎",
+    ["Farming"] = "刷怪",
+    ["Teleport"] = "传送",
+    ["Local Player"] = "本地玩家",
+    ["Dungeons"] = "地下城",
+    ["Settings"] = "设置",
+    ["About"] = "关于",
+    -- Farming（刷怪）模块
+    ["Options"] = "选项",
+    ["Farming Distance"] = "刷怪距离",
+    ["Farming Type"] = "刷怪类型",
+    ["Method 2"] = "方法2",
+    ["Mobs"] = "普通怪物",
+    ["Select Mob"] = "选择怪物",
+    ["Mob Farm"] = "自动刷怪",
+    ["This Will Farm Mobs Automatically"] = "这将自动刷杀怪物",
+    ["Boss"] = "首领",
+    ["Select Boss"] = "选择首领",
+    ["Boss Farm"] = "自动刷首领",
+    ["This Will Farm Bosses Automatically"] = "这将自动刷杀首领",
+    ["Event Boss"] = "事件首领",
+    ["Select Event Boss"] = "选择事件首领",
+    ["Event Boss Farm"] = "自动刷事件首领",
+    ["This Will Farm Event Bosses Automatically"] = "这将自动刷杀事件首领",
+    -- 杂项功能
+    ["Misc"] = "杂项",
+    ["Select Weapon"] = "选择武器",
+    ["If not working just equip combat or any katana from inventory"] = "如果无效，请从背包装备战斗或任意武士刀",
+    ["Sword/Combat"] = "剑/战斗",
+    ["Auto Equip Weapon"] = "自动装备武器",
+    ["Turn This Off If You Don't Want To Auto Equip Weapon"] = "如不想自动装备武器请关闭此功能",
+    ["Instant Kill"] = "秒杀",
+    ["Mobs will instantly die after taking 10% damage."] = "怪物受到10%伤害后立即死亡。",
+    ["Auto Breath"] = "自动呼吸",
+    ["Automatically breathes"] = "自动进行呼吸",
+    ["Auto Buff"] = "自动增益",
+    ["Automatically buffs"] = "自动施放增益效果",
+    ["Auto Skills"] = "自动技能",
+    ["Automatically uses skills"] = "自动使用技能",
+    -- Dungeons（地下城）模块
+    ["Teleport to Dungeon"] = "传送到地下城",
+    ["Teleports you to the dungeon entrance"] = "将你传送到地下城入口",
+    ["Auto Dungeon Farm"] = "自动刷地下城",
+    ["Only works inside the dungeon"] = "仅在地下城内生效",
+    -- Settings（设置）模块
+    ["Reset Timer"] = "重置计时器",
+    ["Time in seconds to reset the character"] = "重置角色的时间（秒）",
+    ["Auto Reset"] = "自动重置",
+    ["Automatically resets the character in selected time"] = "在选定时间自动重置角色",
+    -- About（关于）模块
+    ["Info"] = "信息",
+    ["This script is made by L4BIB. Join the Discord server for support and updates."] = "本脚本由L4BIB制作。加入Discord服务器获取支持与更新。",
+    ["Version"] = "版本",
+    ["Last Updated"] = "最后更新",
+    ["Credits"] = "致谢",
+    ["Script Developer"] = "脚本开发者",
+    -- 特定首领/怪物名称
+    ["Kokushibo"] = "黑死牟",
+    ["Hair Dream Manipulation User"] = "发梦操纵者",
+    ["Weak Demon"] = "弱小鬼",
+    ["Lower Moon Demon 6"] = "下弦之陆",
+    ["Lower Moon Demon 5"] = "下弦之伍",
+    ["Lower Moon Demon 4"] = "下弦之肆",
+    ["Demon"] = "鬼",
+    ["Speed Art User"] = "速之艺术使用者",
+    ["Dream Manipulation User"] = "梦境操纵者",
+    ["Mutated Demon"] = "变异鬼",
+    ["Winter Demon"] = "冬鬼",
+    ["Strong Demon"] = "强大鬼",
+    ["Half Speed Art User"] = "半速艺术使用者",
+    ["Missum"] = "蜜璃",
+    ["Kanao"] = "香奈乎",
+    ["Zentisu"] = "善逸",
+    ["Cputaro"] = "碳太郎",
+    ["Tanjiro (Water)"] = "炭治郎 (水)",
+    ["Tanjiro (Sun)"] = "炭治郎 (日)",
+    ["Obama"] = "奥巴马",
+    ["Susamaru"] = "球鬼",
+    ["Douma"] = "童磨",
+    ["Yorilchi (Half Form)"] = "缘一 (半形态)",
+    ["Tengen"] = "天元",
+    -- 补充界面文本
+    ["Main Village"] = "主村庄",
+    ["Final Selection"] = "最终选拔",
+    ["Little Village"] = "小村庄",
+    ["Demon Slayer Corp"] = "鬼杀队",
+    ["Danger Zone"] = "危险区域",
+    ["Winter Village"] = "冬之村",
+    ["Yoriichi (Half Form)"] = "缘一 (半形态)",
+    ["Gyutaro"] = "妓夫太郎",
+    ["Obanai"] = "伊黑小芭内",
+    ["Kanroji Mitsuri"] = "甘露寺蜜璃",
+    ["Kochou Shinobu"] = "胡蝶忍",
+    ["Tomiyoka Giyuu"] = "冨冈义勇",
+    ["Tokito Muichiro"] = "时透无一郎",
+    ["Akaza"] = "猗窝座",
+    ["Hantengu"] = "半天狗",
+    ["Daki"] = "堕姬",
+    ["Awakened Kaigaku"] = "觉醒的狯岳",
+    ["Sanemi"] = "不死川实弥",
+    ["Rui"] = "累",
+    ["Kaigaku"] = "狯岳",
+    ["Yahaba"] = "矢琶羽",
+    ["Nezuko"] = "祢豆子",
+    ["Rengoku"] = "炼狱杏寿郎",
+    ["Mitsuri"] = "蜜璃",
+    ["Zenitsu"] = "善逸",
+    ["Gyutaro"] = "妓夫太郎",
+    ["Obanai"] = "伊黑小芭内",
+    ["Susamaru"] = "手球鬼",
+    ["Douma"] = "童磨",
+    ["Tengen"] = "宇髄天元",
+    ["Auto Dungeon Farm"] = "自动地下城刷怪",
+    ["Reset Timmer"] = "重置计时器",
+    ["L4BIB HUB"] = "L4BIB  hub",
+    ["UPD 4.75"] = "版本4.75",
+    ["Weak Legacy 2"] = "Weak Legacy 2"
+}
+
+-- 开启调试日志，强制显示所有扫描/翻译过程
+local debugMode = true
 local function debugLog(message)
-    if debugMode then
-        print("[翻译调试] " .. message)
-    end
+    print("[最终汉化调试] " .. message)
 end
 
+-- 预缓存翻译表（优化性能）
 local cachedTranslations = {}
 for en, cn in pairs(Translations) do
     cachedTranslations[en:lower():gsub("%s+", "")] = cn
@@ -136,109 +137,99 @@ local function translateText(text)
     local textLower = text:lower():gsub("%s+", "")
     
     if cachedTranslations[text] then
+        debugLog("精确匹配: '" .. text .. "' -> '" .. cachedTranslations[text] .. "'")
         return cachedTranslations[text]
     elseif cachedTranslations[textLower] then
+        debugLog("模糊匹配: '" .. text .. "' -> '" .. cachedTranslations[textLower] .. "'")
         return cachedTranslations[textLower]
     end
+    
+    debugLog("未匹配: '" .. text .. "'")
     return text
 end
 
-local function setupTranslationEngine()
-    local function translateGuiElement(gui)
-        if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
-        local text = gui.Text
-        if not text or text == "" then return end
-        
-        if gui:GetAttribute("Translated") then return end
-        local translated = translateText(text)
-        if translated ~= text then
-            gui.Text = translated
-            gui:SetAttribute("Translated", true)
-            debugLog("已翻译: " .. gui:GetFullName())
-        end
-    end
-
-    local function scanGui(parent)
-        debugLog("扫描: " .. parent:GetFullName())
-        for _, gui in ipairs(parent:GetChildren()) do
-            pcall(translateGuiElement, gui)
-            if #gui:GetChildren() > 0 then
-                pcall(scanGui, gui)
-            end
-        end
-    end
-
-    local function setupDescendantListener(parent)
-        parent.DescendantAdded:Connect(function(descendant)
-            task.wait(0.3)
-            pcall(translateGuiElement, descendant)
-        end)
-    end
-
-    local success, err = pcall(function()
-        local mt = getrawmetatable(game)
-        setreadonly(mt, false)
-        local oldIndex = mt.__newindex
-        mt.__newindex = newcclosure(function(t, k, v)
-            if (t:IsA("TextLabel") or t:IsA("TextButton") or t:IsA("TextBox")) and k == "Text" then
-                v = translateText(tostring(v))
-            end
-            return oldIndex(t, k, v)
-        end)
-        setreadonly(mt, true)
-        debugLog("元表劫持成功（高效模式）")
-    end)
-
-    if not success then
-        debugLog("元表劫持失败: " .. tostring(err))
-        local guisToScan = {game:GetService("CoreGui"), game:GetService("Players").LocalPlayer.PlayerGui}
-
-        for _, gui in ipairs(guisToScan) do
-            if gui then
-                pcall(setupDescendantListener, gui)
-                pcall(scanGui, gui)
-            end
-        end
-
-        coroutine.wrap(function()
-            while true do
-                for _, gui in ipairs(guisToScan) do
-                    if gui then pcall(scanGui, gui) end
-                end
-                task.wait(10)
-            end
-        end)()
+local function translateGuiElement(gui)
+    if not (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) then return end
+    local text = gui.Text
+    if not text or text == "" then return end
+    
+    if gui:GetAttribute("FinalTranslated") then return end
+    local translated = translateText(text)
+    if translated ~= text then
+        gui.Text = translated
+        gui:SetAttribute("FinalTranslated", true)
+        debugLog("已翻译: " .. gui:GetFullName())
     end
 end
 
-task.wait(5)
-setupTranslationEngine()
+local function scanGui(parent)
+    debugLog("扫描容器: " .. parent:GetFullName())
+    for _, gui in ipairs(parent:GetChildren()) do
+        pcall(translateGuiElement, gui)
+        if #gui:GetChildren() > 0 then
+            pcall(scanGui, gui)
+        end
+    end
+end
 
--- 【修复关键】移除RequestAsync的Timeout选项，改用task.wait控制超时
+local function setupDescendantListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.5) -- 延长等待，确保UI完全加载
+        pcall(translateGuiElement, descendant)
+    end)
+    debugLog("已监听容器: " .. parent:GetFullName())
+end
+
+debugLog("启动最终汉化引擎")
+
+-- 强制扫描所有可能的UI容器（保底逻辑）
+local function forceScanAllGUIs()
+    local coreGui = game:GetService("CoreGui")
+    local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
+    
+    -- 扫描CoreGui所有子容器
+    for _, child in ipairs(coreGui:GetChildren()) do
+        pcall(setupDescendantListener, child)
+        pcall(scanGui, child)
+    end
+    
+    -- 扫描PlayerGui所有子容器
+    if playerGui then
+        for _, child in ipairs(playerGui:GetChildren()) do
+            pcall(setupDescendantListener, child)
+            pcall(scanGui, child)
+        end
+    end
+end
+
+-- 等待游戏完全加载（延长到8秒）
+task.wait(8)
+forceScanAllGUIs()
+
+-- 定期扫描（5秒一次，确保动态UI）
+coroutine.wrap(function()
+    while true do
+        debugLog("定期扫描触发")
+        forceScanAllGUIs()
+        task.wait(5)
+    end
+end)()
+
+-- 外部脚本加载（单独处理，若失败不影响汉化）
 local success, err = pcall(function()
     local httpService = game:GetService("HttpService")
-    local requestSuccess = false
-    local request = nil
-    -- 异步请求+超时控制
-    local thread = coroutine.create(function()
-        request = httpService:RequestAsync({
-            Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
-            Method = "GET"
-        })
-        requestSuccess = true
-    end)
-    coroutine.resume(thread)
-    -- 等待5秒或请求完成
-    local startTime = tick()
-    while not requestSuccess and tick() - startTime < 5 do
-        task.wait()
-    end
-    if request and request.Success then
+    local request = httpService:RequestAsync({
+        Url = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202",
+        Method = "GET",
+        Timeout = 10 -- 延长超时到10秒
+    })
+    if request.Success then
+        debugLog("外部脚本加载成功，执行中...")
         loadstring(request.Body)()
     else
-        warn("外部脚本加载失败，状态码:", request and request.StatusCode or "超时")
+        warn("外部脚本加载失败，状态码:", request.StatusCode)
     end
 end)
 if not success then
-    warn("外部脚本加载失败，原因:", err)
+    warn("外部脚本加载异常，原因:", err)
 end
