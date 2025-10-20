@@ -208,9 +208,7 @@ setupTranslationEngine()
 
 -- 外部脚本加载（如果有需要）- 修复了这里的语法错误
 local success, err = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/dreamszs/zzzz_hub/refs/heads/main/zzzz_v14-obfuscated%20(3).lua"))()
-end)
-
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
 if not success then
     warn("外部脚本加载失败:", err)
 end
