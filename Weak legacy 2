@@ -206,15 +206,10 @@ local Translations = {
 }
 
 -- 生产环境配置
-local debugMode = false -- 已关闭调试
-local function debugLog(message)
-    -- 生产环境不输出任何调试信息
-end
+local debugMode = false
 
--- 其余代码保持不变...
+-- 简化的翻译函数
 local translationCache = {}
-local processedElements = {}
-
 local function translateText(text)
     if not text or type(text) ~= "string" or text == "" then 
         return text 
@@ -224,68 +219,129 @@ local function translateText(text)
         return translationCache[text]
     end
     
-    if Translations[text] then
-        translationCache[text] = Translations[text]
-        return Translations[text]
+    local translated = Translations[text] or text
+    translationCache[text] = translated
+    return translated
+end
+
+-- 简化的GUI处理
+local processedElements = {}
+
+local function safeTranslateGuiElement(gui)
+    if not gui or not gui.Parent then return end
+    if processedElements[gui] then return end
+    
+    local success, isTextElement = pcall(function()
+        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
+    end)
+    
+    if not success or not isTextElement then return end
+    
+    local text = gui.Text
+    if not text or text == "" then 
+        processedElements[gui] = true
+        return 
     end
     
-    local cleanText = text:gsub("^%s*(.-)%s*$", "%1")
-    
-    if Translations[cleanText] then
-        translationCache[text] = Translations[cleanText]
-        translationCache[cleanText] = Translations[cleanText]
-        return Translations[cleanText]
+    local translated = translateText(text)
+    if translated ~= text then
+        pcall(function()
+            gui.Text = translated
+        end)
     end
     
-    local lowerText = cleanText:lower()
-    for en, cn in pairs(Translations) do
-        if lowerText == en:lower() then
-            translationCache[text] = cn
-            translationCache[cleanText] = cn
-            return cn
+    processedElements[gui] = true
+end
+
+-- 简化的扫描函数
+local function simpleScan(parent)
+    local function scanChildren(container)
+        for _, child in ipairs(container:GetChildren()) do
+            pcall(safeTranslateGuiElement, child)
+            if #child:GetChildren() > 0 then
+                scanChildren(child)
+            end
         end
     end
     
-    translationCache[text] = text
-    return text
+    pcall(scanChildren, parent)
 end
 
--- ... 其余代码保持不变（但移除所有debugLog调用）...
-
--- 启动系统
-task.wait(3)
-setupOptimizedListeners()
-
--- 可选：关闭性能统计的输出
-local performanceStats = {
-    translations = 0,
-    scans = 0,
-    lastUpdate = tick()
-}
-
-local function updateStats()
-    performanceStats.translations = performanceStats.translations + 1
-    -- 生产环境不输出统计信息
+-- 简化的监听器
+local function setupSimpleListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.1)
+        pcall(safeTranslateGuiElement, descendant)
+    end)
 end
 
--- 外部脚本加载
-local externalScriptLoaded = false
-task.delay(5, function()
-    if not externalScriptLoaded then
-        local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"))()
-            externalScriptLoaded = true
+-- 主要初始化函数
+local function initializeTranslation()
+    local players = game:GetService("Players")
+    local player = players.LocalPlayer
+    
+    if not player then
+        players.PlayerAdded:Wait()
+        player = players.LocalPlayer
+    end
+    
+    -- 设置监听器
+    local coreGui = game:GetService("CoreGui")
+    setupSimpleListener(coreGui)
+    simpleScan(coreGui)
+    
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if playerGui then
+        setupSimpleListener(playerGui)
+        simpleScan(playerGui)
+        
+        playerGui.ChildAdded:Connect(function(child)
+            task.wait(0.5)
+            simpleScan(child)
         end)
-        if not success then
-            -- 生产环境可以选择不输出警告，或者保留重要错误信息
-            -- warn("外部脚本加载失败:", err)
+    end
+end
+
+-- 先加载外部脚本，再初始化翻译
+local function loadExternalScript()
+    local success, err = pcall(function()
+        local scriptUrl = "https://raw.githubusercontent.com/L4BIBKAZI/L4BIB-HUB/refs/heads/main/Weak%20Legacy%202"
+        local scriptContent = game:HttpGet(scriptUrl)
+        loadstring(scriptContent)()
+    end)
+    
+    if success then
+        task.wait(3) -- 等待脚本界面加载
+        initializeTranslation()
+    else
+        -- 即使外部脚本失败，也尝试初始化翻译
+        task.wait(2)
+        initializeTranslation()
+    end
+end
+
+-- 主启动流程
+task.spawn(function()
+    task.wait(2) -- 等待游戏基本加载
+    loadExternalScript()
+end)
+
+-- 定期清理内存
+task.spawn(function()
+    while true do
+        task.wait(60)
+        for element, _ in pairs(processedElements) do
+            if not element or not element.Parent then
+                processedElements[element] = nil
+            end
         end
     end
 end)
 
+-- 提供翻译接口
 return {
     Translate = translateText,
-    ClearCache = function()
+    Refresh = function()
         table.clear(translationCache)
         table.clear(processedElements)
     end
