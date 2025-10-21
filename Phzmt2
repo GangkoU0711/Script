@@ -1,0 +1,355 @@
+local Translations = {
+    -- 主菜单
+    ["Vision Hub | Murder Mystery 2"] = "视觉中心 | 谋杀之谜2 汉化byTH",
+    ["by oriator"] = "汉化作者: TH",
+    ["by ortalker"] = "脚本作者: ortalker",
+    
+    -- 主导航
+    ["Character"] = "角色",
+    ["Combat"] = "战斗",
+    ["Visuals"] = "视觉",
+    ["Teleports"] = "传送",
+    ["Trolling"] = "捣乱",
+    ["Emotes"] = "表情",
+    ["Extras"] = "额外功能",
+    ["Settings"] = "设置",
+    
+    -- 角色功能
+    ["Player Modifications"] = "角色修改",
+    ["Enable Walk Speed"] = "启用移动速度",
+    ["Walk Speed"] = "移动速度",
+    ["Set the player's walk speed"] = "设置玩家的移动速度",
+    ["Enable Jump Power"] = "启用跳跃力量",
+    ["Jump Power"] = "跳跃力量",
+    ["Set the player's jump power"] = "设置玩家的跳跃力量",
+    ["No Clip"] = "穿墙模式",
+    ["Allows the player to walk through walls"] = "允许玩家穿过墙壁",
+    ["Infinite Jump"] = "无限跳跃",
+    ["Allows the player to jump infinitely"] = "允许玩家无限跳跃",
+    ["Respawn Player"] = "重生玩家",
+    ["Respawns the player"] = "使玩家重生",
+    ["Fly for PC"] = "PC端飞行",
+    ["Allows the player to fly (keyboard controls)"] = "允许玩家飞行（键盘控制）",
+    ["Fly for Mobile"] = "移动端飞行",
+    ["Allows the player to fly (mobile joystick controls)"] = "允许玩家飞行（移动端摇杆控制）",
+    ["Fly Speed"] = "飞行速度",
+    ["Set the speed of flying"] = "设置飞行速度",
+    
+    -- 战斗功能
+    ["Button Size"] = "按钮大小",
+    ["Innocent"] = "无辜者",
+    ["Grab Gun"] = "拾取枪",
+    ["Press to grab the gun"] = "按下以拾取枪",
+    ["Grab Gun Keybind"] = "拾取枪快捷键",
+    ["Automatic Grab Gun"] = "自动拾取枪",
+    ["Automatically grabs the gun when dropped"] = "当枪掉落时自动拾取",
+    ["Murderer"] = "杀手",
+    ["Kill All"] = "杀死所有人",
+    ["Kills all players in the game"] = "杀死游戏中的所有玩家",
+    ["Automatic Kill All"] = "自动杀死所有人",
+    ["Kills all players automatically"] = "自动杀死所有玩家",
+    ["Knife Aura"] = "刀光范围",
+    ["Kill multiple players within radius"] = "在范围内杀死多个玩家",
+    ["Aura Distance"] = "范围距离",
+    ["Set the distance for knife aura"] = "设置刀光范围的距离",
+    ["Sheriff / Hero"] = "警长/英雄",
+    ["Automatic Shoot Murderer"] = "自动射击杀手",
+    ["Automatically shoots the murderer"] = "自动射击杀手",
+    ["Shoot Murderer"] = "射击杀手",
+    ["Press to shoot murderer"] = "按下以射击杀手",
+    ["Mobile Shoot Murderer Button"] = "移动端射击按钮",
+    ["Displays a Shoot button for mobile"] = "为移动端显示射击按钮",
+    ["Lock Button"] = "锁定按钮",
+    ["Reset Button Position"] = "重置按钮位置",
+    
+    -- 视觉功能
+    ["VISuals"] = "视觉设置",
+    ["ESP / Highlights"] = "ESP/高亮",
+    ["Highlight Players"] = "高亮玩家",
+    ["Highlights all players in the round"] = "高亮本轮所有玩家",
+    ["Show Nicknames"] = "显示昵称",
+    ["Shows player nicknames"] = "显示玩家昵称",
+    ["Highlight Dropped Gun"] = "高亮掉落枪支",
+    ["Highlights the dropped gun"] = "高亮掉落的枪支",
+    ["Highlight Traps"] = "高亮陷阱",
+    ["Highlights traps in the game"] = "高亮游戏中的陷阱",
+    ["Notifications"] = "通知",
+    ["Notify Gun Dropped"] = "通知枪支掉落",
+    ["Notifies when the gun is dropped"] = "当枪支掉落时通知",
+    ["Notify Roles"] = "通知角色",
+    ["Displays roles of Murderer and Sheriff in the game"] = "显示游戏中杀手和警长的角色",
+    
+    -- 传送功能
+    ["Workforce"] = "工作区",
+    ["World Teleports"] = "世界传送",
+    ["Teleport to Player"] = "传送到玩家",
+    ["Teleport to the selected player"] = "传送到选定的玩家",
+    ["Teleport to Lobby"] = "传送到大厅",
+    ["Teleports the player to the spawn location"] = "将玩家传送到出生点",
+    ["Teleport to Map"] = "传送到地图",
+    ["Teleports you to the Map"] = "将你传送到地图",
+    ["Teleport to Gun Drop"] = "传送到枪支掉落点",
+    ["Teleports the player to the dropped gun"] = "将玩家传送到掉落的枪支位置",
+    ["Players Teleports"] = "玩家传送",
+    ["Select Player"] = "选择玩家",
+    ["Choose a player to teleport to"] = "选择要传送到的玩家",
+    ["Role Teleports"] = "角色传送",
+    ["Teleport to Murderer"] = "传送到杀手",
+    ["Teleports you to the Murderer"] = "将你传送到杀手位置",
+    ["Teleport to Sheriff"] = "传送到警长",
+    ["Teleports you to the Sheriff"] = "将你传送到警长位置",
+    ["Teleport to Hero"] = "传送到英雄",
+    ["Teleports you to the Hero"] = "将你传送到英雄位置",
+    
+    -- 捣乱功能
+    ["Fixed Player"] = "固定玩家",
+    ["Select the Player"] = "选择玩家",
+    ["Choose a player to fling"] = "选择要抛掷的玩家",
+    ["Fling Player"] = "抛掷玩家",
+    ["Fling the selected player"] = "抛掷选定的玩家",
+    ["Fling All Players"] = "抛掷所有玩家",
+    ["Fling all players in the game"] = "抛掷游戏中的所有玩家",
+    ["Fling Murderer"] = "抛掷杀手",
+    ["Fling the Murderer"] = "抛掷杀手",
+    ["Film Shortf"] = "抛掷警长",
+    ["Fling the Shortff"] = "抛掷警长",
+    ["Film Hero"] = "抛掷英雄",
+    ["Fling the Hero"] = "抛掷英雄",
+    ["Chat Trolling"] = "聊天捣乱",
+    ["Send Roles in Chat"] = "在聊天中发送角色",
+    ["Sends Murderer & Shortff in Chat"] = "在聊天中发送杀手和警长信息",
+    ["Automatic Send Roles in Chat"] = "自动在聊天中发送角色",
+    ["Automatically sends roles in Chat when round starts"] = "回合开始时自动在聊天中发送角色信息",
+    
+    -- 表情功能
+    ["Errorless"] = "无错误",
+    ["Sit"] = "坐下",
+    ["Ninja"] = "忍者",
+    ["Dab"] = "Dab姿势",
+    ["Floss"] = "牙线舞",
+    ["Zen"] = "禅坐",
+    ["Zombie"] = "僵尸",
+    ["Headless"] = "无头",
+    ["Spam Random Emotes"] = "随机表情刷屏",
+    ["Spam all emotes"] = "刷屏所有表情",
+    
+    -- 额外功能
+    ["Extra8"] = "额外功能8",
+    ["ExtraB"] = "额外功能B",
+    ["Protection"] = "保护",
+    ["God Mode"] = "上帝模式",
+    ["Grants an extra life"] = "提供额外生命",
+    ["Anti Fling"] = "防抛掷",
+    ["Prevents fling attempts on you"] = "防止他人抛掷你",
+    ["Anti Afk"] = "防挂机",
+    ["Prevents being kicked for being idle"] = "防止因挂机被踢出",
+    ["Server"] = "服务器",
+    ["Rejoin Server"] = "重新加入服务器",
+    ["Reconnect to the current server"] = "重新连接到当前服务器",
+    ["Server Hop"] = "服务器跳转",
+    ["Join a different server of the same game"] = "加入同一游戏的不同服务器",
+    
+    -- 设置
+    ["Character Settings"] = "角色设置",
+    ["Interface Settings"] = "界面设置",
+    ["UI Toggle Keybind"] = "UI切换快捷键",
+    ["Set the key to open/close the UI"] = "设置打开/关闭UI的按键",
+    ["UI Transparency"] = "UI透明度",
+    ["Makes the UI transparent"] = "使UI透明",
+    ["Information & Community"] = "信息与社区",
+    ["Welcome to VisionHub!"] = "欢迎使用视觉中心！",
+    ["Thanks for using VisionHub! We are constantly working on new features and improvements."] = "感谢使用视觉中心！如需汉化联系QQ977884227。",
+    ["Stay updated with the latest news and report any bugs on our Discord server. We appreciate your support!"] = "如需汉化联系QQ977884227。感谢您的支持！",
+
+-- 简化版本 - 移除可能引起冲突的部分
+local debugMode = false -- 临时开启调试来排查问题
+local function debugLog(message)
+    if debugMode then
+        print("[翻译调试] " .. message)
+    end
+end
+
+-- 简化的翻译缓存
+local translationCache = {}
+
+local function translateText(text)
+    if not text or type(text) ~= "string" or text == "" then 
+        return text 
+    end
+    
+    -- 检查缓存
+    if translationCache[text] then
+        return translationCache[text]
+    end
+    
+    -- 精确匹配
+    if Translations[text] then
+        translationCache[text] = Translations[text]
+        return Translations[text]
+    end
+    
+    -- 返回原文本
+    translationCache[text] = text
+    return text
+end
+
+-- 简化的GUI处理
+local processedElements = {}
+
+local function safeTranslateGuiElement(gui)
+    -- 安全检查
+    if not gui or not gui.Parent then return end
+    if processedElements[gui] then return end
+    
+    -- 类型检查
+    local success, isTextElement = pcall(function()
+        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
+    end)
+    
+    if not success or not isTextElement then return end
+    
+    -- 文本检查
+    local text = gui.Text
+    if not text or text == "" then 
+        processedElements[gui] = true
+        return 
+    end
+    
+    -- 应用翻译
+    local translated = translateText(text)
+    if translated ~= text then
+        pcall(function()
+            gui.Text = translated
+            debugLog("已翻译: " .. gui.Name)
+        end)
+    end
+    
+    processedElements[gui] = true
+end
+
+-- 简化的扫描系统
+local function simpleScan(parent)
+    debugLog("开始扫描: " .. parent.Name)
+    
+    local function scanChildren(container)
+        for _, child in ipairs(container:GetChildren()) do
+            -- 安全地处理每个元素
+            pcall(safeTranslateGuiElement, child)
+            -- 递归扫描子元素
+            if #child:GetChildren() > 0 then
+                scanChildren(child)
+            end
+        end
+    end
+    
+    pcall(scanChildren, parent)
+    debugLog("扫描完成: " .. parent.Name)
+end
+
+-- 简化的监听器
+local function setupSimpleListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.1) -- 给元素时间初始化
+        pcall(safeTranslateGuiElement, descendant)
+    end)
+end
+
+-- 主要启动函数
+local function initializeTranslation()
+    debugLog("初始化翻译系统...")
+    
+    -- 等待游戏加载
+    local players = game:GetService("Players")
+    local player = players.LocalPlayer
+    
+    if not player then
+        players.PlayerAdded:Wait()
+        player = players.LocalPlayer
+    end
+    
+    -- 等待PlayerGui
+    if not player:FindFirstChild("PlayerGui") then
+        player:WaitForChild("PlayerGui", 10)
+    end
+    
+    -- 设置监听器
+    local coreGui = game:GetService("CoreGui")
+    setupSimpleListener(coreGui)
+    simpleScan(coreGui)
+    
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if playerGui then
+        setupSimpleListener(playerGui)
+        simpleScan(playerGui)
+        
+        -- 监听PlayerGui的变化
+        playerGui.ChildAdded:Connect(function(child)
+            task.wait(0.5) -- 等待GUI完全加载
+            simpleScan(child)
+        end)
+    end
+    
+    debugLog("翻译系统初始化完成")
+end
+
+-- 先加载外部脚本，再初始化翻译
+local function loadExternalScript()
+    debugLog("正在加载外部脚本...")
+    
+    local success, err = pcall(function()
+        -- 尝试加载外部脚本
+        local scriptUrl = "https://raw.githubusercontent.com/orialdev/VisionHub/refs/heads/main/main.lua"
+        local scriptContent = game:HttpGet(scriptUrl)
+        loadstring(scriptContent)()
+    end)
+    
+    if success then
+        debugLog("外部脚本加载成功")
+        -- 等待脚本创建界面
+        task.wait(3)
+        initializeTranslation()
+    else
+        debugLog("外部脚本加载失败: " .. tostring(err))
+        -- 即使外部脚本失败，也初始化翻译
+        task.wait(2)
+        initializeTranslation()
+    end
+end
+
+-- 主启动流程
+task.spawn(function()
+    debugLog("启动脚本...")
+    
+    -- 先等待游戏基本加载
+    task.wait(2)
+    
+    -- 加载外部脚本
+    loadExternalScript()
+end)
+
+-- 定期清理内存（可选）
+task.spawn(function()
+    while true do
+        task.wait(60)
+        local count = 0
+        for element, _ in pairs(processedElements) do
+            if not element or not element.Parent then
+                processedElements[element] = nil
+                count = count + 1
+            end
+        end
+        if debugMode and count > 0 then
+            debugLog("清理了 " .. count .. " 个无效元素")
+        end
+    end
+end)
+
+-- 提供简单的翻译接口
+return {
+    Translate = translateText,
+    Refresh = function()
+        table.clear(translationCache)
+        table.clear(processedElements)
+        debugLog("缓存已清除")
+    end
+}
