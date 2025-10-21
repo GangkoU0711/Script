@@ -160,7 +160,7 @@ local Translations = {
     ["Welcome to VisionHub!"] = "欢迎使用视觉中心！",
     ["Thanks for using VisionHub! We are constantly working on new features and improvements."] = "感谢使用视觉中心！如需汉化联系QQ977884227。",
     ["Stay updated with the latest news and report any bugs on our Discord server. We appreciate your support!"] = "如需汉化联系QQ977884227。感谢您的支持！",
-
+}
 -- 简化版本 - 移除可能引起冲突的部分
 local debugMode = false -- 临时开启调试来排查问题
 local function debugLog(message)
