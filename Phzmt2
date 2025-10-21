@@ -1,8 +1,8 @@
 local Translations = {
     -- 主菜单
-    ["Vision Hub | Murder Mystery 2"] = "视觉中心 | 谋杀之谜2 汉化byTH",
-    ["by oriator"] = "汉化作者: TH",
-    ["by ortalker"] = "脚本作者: ortalker",
+    ["Vision Hub | Murder Mystery 2"] = "视觉中心 | 谋杀之谜2",
+    ["by orialdev"] = "汉化作者: TH",
+    
     
     -- 主导航
     ["Character"] = "角色",
