@@ -142,203 +142,176 @@ local Translations = {
     ["Config name"] = "配置名称",
 }
 
--- 安全加载外部脚本
-local function loadExternalScript()
-    print("正在加载外部脚本...")
-    
-    local backupUrls = {
-        "https://raw.githubusercontent.com/IdiotHub/Scripts/main/Loader",
-        "https://raw.githubusercontent.com/IdiotHub/Scripts/main/Loader.lua",
-    }
-    
-    for i, url in ipairs(backupUrls) do
-        local scriptContent = safeHttpGet(url)
-        if scriptContent and scriptContent ~= "" and scriptContent ~= "404: Not Found" then
-            local success, err = pcall(function()
-                local loadedFunction = loadstring(scriptContent)
-                if loadedFunction then
-                    loadedFunction()
-                else
-                    error("编译失败")
-                end
-            end)
-            
-            if success then
-                print("外部脚本加载成功!")
-                return true
-            else
-                warn("外部脚本加载失败: " .. tostring(err))
-            end
-        else
-            warn("URL " .. i .. " 返回空内容或404")
-        end
-        
-        task.wait(1)
+-- 简化版本 - 移除可能引起冲突的部分
+local debugMode = false -- 临时开启调试来排查问题
+local function debugLog(message)
+    if debugMode then
+        print("[翻译调试] " .. message)
     end
-    
-    return false
 end
 
--- 优化的翻译系统
+-- 简化的翻译缓存
 local translationCache = {}
-local processedElements = {}
 
 local function translateText(text)
-    if not text or type(text) ~= "string" then return text end
+    if not text or type(text) ~= "string" or text == "" then 
+        return text 
+    end
     
+    -- 检查缓存
     if translationCache[text] then
         return translationCache[text]
     end
     
+    -- 精确匹配
     if Translations[text] then
         translationCache[text] = Translations[text]
         return Translations[text]
     end
     
+    -- 返回原文本
+    translationCache[text] = text
     return text
 end
 
--- 使用防抖技术减少频繁操作
-local debounceTimers = {}
-local function debounce(name, callback, delay)
-    if debounceTimers[name] then
-        debounceTimers[name]:Disconnect()
-    end
-    
-    debounceTimers[name] = task.delay(delay or 0.1, function()
-        debounceTimers[name] = nil
-        callback()
-    end)
-end
+-- 简化的GUI处理
+local processedElements = {}
 
-local function safeTranslateElement(element)
-    if not element or not element.Parent or processedElements[element] then return end
+local function safeTranslateGuiElement(gui)
+    -- 安全检查
+    if not gui or not gui.Parent then return end
+    if processedElements[gui] then return end
     
+    -- 类型检查
     local success, isTextElement = pcall(function()
-        return element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox")
+        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
     end)
     
     if not success or not isTextElement then return end
     
-    local text = element.Text
+    -- 文本检查
+    local text = gui.Text
     if not text or text == "" then 
-        processedElements[element] = true
+        processedElements[gui] = true
         return 
     end
     
+    -- 应用翻译
     local translated = translateText(text)
     if translated ~= text then
         pcall(function()
-            element.Text = translated
+            gui.Text = translated
+            debugLog("已翻译: " .. gui.Name)
         end)
     end
     
-    processedElements[element] = true
+    processedElements[gui] = true
 end
 
--- 分批处理元素，减少单帧压力
-local function batchProcessElements(elements, batchSize)
-    batchSize = batchSize or 50
+-- 简化的扫描系统
+local function simpleScan(parent)
+    debugLog("开始扫描: " .. parent.Name)
     
-    for i = 1, #elements, batchSize do
-        local batch = {}
-        for j = i, math.min(i + batchSize - 1, #elements) do
-            table.insert(batch, elements[j])
-        end
-        
-        -- 在下一帧处理这批元素
-        task.defer(function()
-            for _, element in ipairs(batch) do
-                safeTranslateElement(element)
+    local function scanChildren(container)
+        for _, child in ipairs(container:GetChildren()) do
+            -- 安全地处理每个元素
+            pcall(safeTranslateGuiElement, child)
+            -- 递归扫描子元素
+            if #child:GetChildren() > 0 then
+                scanChildren(child)
             end
-        end)
-        
-        task.wait() -- 让出一帧
+        end
     end
-end
-
-local function scanAndTranslate(parent)
-    local allElements = parent:GetDescendants()
-    batchProcessElements(allElements)
-end
-
-local function setupTranslationListener()
-    local coreGui = game:GetService("CoreGui")
     
-    coreGui.DescendantAdded:Connect(function(descendant)
-        debounce("translate_" .. tostring(descendant), function()
-            safeTranslateElement(descendant)
-        end, 0.2)
+    pcall(scanChildren, parent)
+    debugLog("扫描完成: " .. parent.Name)
+end
+
+-- 简化的监听器
+local function setupSimpleListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.1) -- 给元素时间初始化
+        pcall(safeTranslateGuiElement, descendant)
     end)
 end
 
--- 主初始化函数
-local function initializeTranslationSystem()
-    print("初始化翻译系统...")
+-- 主要启动函数
+local function initializeTranslation()
+    debugLog("初始化翻译系统...")
     
-    -- 等待必要的服务
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
+    -- 等待游戏加载
+    local players = game:GetService("Players")
+    local player = players.LocalPlayer
+    
+    if not player then
+        players.PlayerAdded:Wait()
+        player = players.LocalPlayer
     end
     
-    local player = Players.LocalPlayer
-    if not player then
-        Players.PlayerAdded:Wait()
-        player = Players.LocalPlayer
+    -- 等待PlayerGui
+    if not player:FindFirstChild("PlayerGui") then
+        player:WaitForChild("PlayerGui", 10)
     end
     
     -- 设置监听器
-    setupTranslationListener()
-    
-    -- 分批扫描现有界面
     local coreGui = game:GetService("CoreGui")
-    task.spawn(function()
-        scanAndTranslate(coreGui)
-    end)
+    setupSimpleListener(coreGui)
+    simpleScan(coreGui)
     
     local playerGui = player:FindFirstChild("PlayerGui")
     if playerGui then
-        task.spawn(function()
-            scanAndTranslate(playerGui)
-        end)
+        setupSimpleListener(playerGui)
+        simpleScan(playerGui)
         
-        -- 监听PlayerGui的子项添加
+        -- 监听PlayerGui的变化
         playerGui.ChildAdded:Connect(function(child)
-            debounce("scan_child_" .. tostring(child), function()
-                scanAndTranslate(child)
-            end, 0.5)
+            task.wait(0.5) -- 等待GUI完全加载
+            simpleScan(child)
         end)
     end
     
-    print("翻译系统初始化完成")
+    debugLog("翻译系统初始化完成")
 end
 
--- 主启动流程 - 使用更温和的加载方式
-task.spawn(function()
-    print("启动主流程...")
+-- 先加载外部脚本，再初始化翻译
+local function loadExternalScript()
+    debugLog("正在加载外部脚本...")
     
-    -- 先等待基础环境就绪，减少对游戏初始化的干扰
-    task.wait(3)
+    local success, err = pcall(function()
+        -- 尝试加载外部脚本
+        local scriptUrl = "https://raw.githubusercontent.com/IdiotHub/Scripts/main/Loader"
+        local scriptContent = game:HttpGet(scriptUrl)
+        loadstring(scriptContent)()
+    end)
     
-    -- 第一步：加载外部脚本
-    local externalLoaded = loadExternalScript()
-    
-    -- 第二步：等待外部脚本创建界面
-    if externalLoaded then
-        print("等待外部脚本创建界面...")
-        task.wait(5) -- 给外部脚本更多时间创建界面
+    if success then
+        debugLog("外部脚本加载成功")
+        -- 等待脚本创建界面
+        task.wait(3)
+        initializeTranslation()
+    else
+        debugLog("外部脚本加载失败: " .. tostring(err))
+        -- 即使外部脚本失败，也初始化翻译
+        task.wait(2)
+        initializeTranslation()
     end
+end
+
+-- 主启动流程
+task.spawn(function()
+    debugLog("启动脚本...")
     
-    -- 第三步：初始化翻译系统
-    initializeTranslationSystem()
+    -- 先等待游戏基本加载
+    task.wait(2)
     
-    print("=== 系统加载完成 ===")
+    -- 加载外部脚本
+    loadExternalScript()
 end)
 
--- 定期清理内存
+-- 定期清理内存（可选）
 task.spawn(function()
     while true do
-        task.wait(30) -- 每30秒清理一次
+        task.wait(60)
         local count = 0
         for element, _ in pairs(processedElements) do
             if not element or not element.Parent then
@@ -346,18 +319,18 @@ task.spawn(function()
                 count = count + 1
             end
         end
-        if count > 0 then
-            print("清理了 " .. count .. " 个无效元素")
+        if debugMode and count > 0 then
+            debugLog("清理了 " .. count .. " 个无效元素")
         end
     end
 end)
 
--- 提供外部接口
+-- 提供简单的翻译接口
 return {
     Translate = translateText,
-    Reload = function()
+    Refresh = function()
         table.clear(translationCache)
         table.clear(processedElements)
-        initializeTranslationSystem()
+        debugLog("缓存已清除")
     end
 }
