@@ -141,17 +141,6 @@ local Translations = {
     ["Configuration"] = "配置",
     ["Config name"] = "配置名称",
 }
-local Translations = {
-    -- 你的所有翻译内容保持不变
-    ["Home"] = "首页",
-    ["Main"] = "主界面",
-    ["Shops"] = "商店",
-    ["Automation"] = "自动化",
-    ["Auto Sell"] = "自动出售",
-    ["Misc"] = "杂项",
-    ["Settings"] = "设置",
-    -- ... 保留所有其他翻译
-}
 
 print("=== 翻译系统开始加载 ===")
 
