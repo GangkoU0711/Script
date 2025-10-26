@@ -1,13 +1,12 @@
--- 稳健版翻译系统
-print("🚀 开始加载稳健版翻译系统...")
-
--- 基础翻译表
 local Translations = {
+    -- 主导航栏和主菜单
     ["BronxWare 99 Nights"] = "布朗克斯软件 99夜",
     ["Main"] = "主界面",
     ["Auto"] = "自动",
     ["Teleport Options"] = "传送选项",
     ["Bring Items"] = "获取物品",
+    
+    -- 玩家选项
     ["Player Options"] = "玩家选项",
     ["Codmode"] = "上帝模式",
     ["Spectate Players"] = "观察玩家",
@@ -18,6 +17,8 @@ local Translations = {
     ["16 Speed"] = "16 速度",
     ["呼出/隐藏鼠标"] = "呼出/隐藏鼠标",
     ["Instant Prompts"] = "即时提示",
+    
+    -- 自动化功能
     ["Auto Scrap Items"] = "自动拆解物品",
     ["Auto Fuel Fire"] = "自动添加燃料",
     ["Auto Crock Pot Main"] = "自动炖锅",
@@ -33,6 +34,8 @@ local Translations = {
     ["Planting Radius"] = "种植半径",
     ["Tree Spacing"] = "树木间距",
     ["3.5 studs"] = "3.5 罗布",
+    
+    -- 箱子系统
     ["Chest Selector"] = "箱子选择器",
     ["None"] = "无",
     ["Volcanic Chest1"] = "火山箱子1",
@@ -41,6 +44,8 @@ local Translations = {
     ["Player Teleport"] = "玩家传送",
     ["Select Player"] = "选择玩家",
     ["Refresh Player List"] = "刷新玩家列表",
+    
+    -- 传送功能
     ["Selective Player"] = "选择玩家",
     ["Anvil Teleports"] = "铁砧传送",
     ["Teleport Location"] = "传送位置",
@@ -51,6 +56,8 @@ local Translations = {
     ["Teleport to Kraken Kid"] = "传送到海怪孩子",
     ["Teleport to Squid Kid"] = "传送到乌贼孩子",
     ["Teleport to Koala Kid"] = "传送到考拉孩子",
+    
+    -- 物品分类
     ["Item Category"] = "物品分类",
     ["Fuel"] = "燃料",
     ["Pelt"] = "毛皮",
@@ -74,6 +81,8 @@ local Translations = {
     ["Bear Corpse"] = "熊尸体",
     ["Sapling"] = "树苗",
     ["Bring Selected Item"] = "获取选定物品",
+    
+    -- 钓鱼选项
     ["Fishing Options"] = "钓鱼选项",
     ["Instant Catch"] = "即时捕获",
     ["Fishable Area ESP"] = "可钓鱼区域ESP",
@@ -86,226 +95,194 @@ local Translations = {
     ["Teleport to Fishing Hut"] = "传送到钓鱼小屋",
 }
 
--- 创建状态监控UI
-local function createStatusUI()
-    print("🖥️ 创建状态监控UI...")
-    
-    local players = game:GetService("Players")
-    local player = players.LocalPlayer
-    local playerGui = player:WaitForChild("PlayerGui")
-    
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "TranslationStatusUI"
-    screenGui.Parent = playerGui
-    
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 350, 0, 200)
-    mainFrame.Position = UDim2.new(0, 10, 0, 10)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    mainFrame.BorderSizePixel = 2
-    mainFrame.BorderColor3 = Color3.fromRGB(100, 100, 255)
-    mainFrame.Parent = screenGui
-    
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 0, 0, 0)
-    title.BackgroundColor3 = Color3.fromRGB(60, 60, 100)
-    title.Text = "🔧 翻译系统监控面板"
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.TextScaled = true
-    title.Parent = mainFrame
-    
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(1, 0, 0, 120)
-    statusLabel.Position = UDim2.new(0, 0, 0, 30)
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Text = "系统启动中..."
-    statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-    statusLabel.TextScaled = true
-    statusLabel.TextWrapped = true
-    statusLabel.Parent = mainFrame
-    
-    local buttonFrame = Instance.new("Frame")
-    buttonFrame.Size = UDim2.new(1, 0, 0, 50)
-    buttonFrame.Position = UDim2.new(0, 0, 0, 150)
-    buttonFrame.BackgroundTransparency = 1
-    buttonFrame.Parent = mainFrame
-    
-    local loadButton = Instance.new("TextButton")
-    loadButton.Size = UDim2.new(0.45, 0, 0.8, 0)
-    loadButton.Position = UDim2.new(0.025, 0, 0.1, 0)
-    loadButton.BackgroundColor3 = Color3.fromRGB(0, 150, 50)
-    loadButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    loadButton.Text = "加载外部脚本"
-    loadButton.Parent = buttonFrame
-    
-    local translateButton = Instance.new("TextButton")
-    translateButton.Size = UDim2.new(0.45, 0, 0.8, 0)
-    translateButton.Position = UDim2.new(0.525, 0, 0.1, 0)
-    translateButton.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-    translateButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    translateButton.Text = "执行翻译"
-    translateButton.Parent = buttonFrame
-    
-    return {
-        ScreenGui = screenGui,
-        StatusLabel = statusLabel,
-        LoadButton = loadButton,
-        TranslateButton = translateButton
-    }
+-- 简化版本 - 移除可能引起冲突的部分
+local debugMode = false -- 临时开启调试来排查问题
+local function debugLog(message)
+    if debugMode then
+        print("[翻译调试] " .. message)
+    end
 end
 
--- 简化的翻译函数
+-- 简化的翻译缓存
 local translationCache = {}
+
 local function translateText(text)
-    if not text or type(text) ~= "string" then return text end
-    if translationCache[text] then return translationCache[text] end
+    if not text or type(text) ~= "string" or text == "" then 
+        return text 
+    end
     
+    -- 检查缓存
+    if translationCache[text] then
+        return translationCache[text]
+    end
+    
+    -- 精确匹配
     if Translations[text] then
         translationCache[text] = Translations[text]
-        print("✅ 翻译: " .. text .. " -> " .. Translations[text])
         return Translations[text]
     end
     
+    -- 返回原文本
+    translationCache[text] = text
     return text
 end
 
--- GUI扫描函数
+-- 简化的GUI处理
 local processedElements = {}
-local function scanAndTranslateGui(parent, depth)
-    if depth > 10 then return end -- 防止无限递归
+
+local function safeTranslateGuiElement(gui)
+    -- 安全检查
+    if not gui or not gui.Parent then return end
+    if processedElements[gui] then return end
     
-    for _, child in ipairs(parent:GetChildren()) do
-        -- 检查是否是文本元素
-        if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
-            if not processedElements[child] and child.Text and child.Text ~= "" then
-                local translated = translateText(child.Text)
-                if translated ~= child.Text then
-                    pcall(function()
-                        child.Text = translated
-                        processedElements[child] = true
-                    end)
-                end
+    -- 类型检查
+    local success, isTextElement = pcall(function()
+        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
+    end)
+    
+    if not success or not isTextElement then return end
+    
+    -- 文本检查
+    local text = gui.Text
+    if not text or text == "" then 
+        processedElements[gui] = true
+        return 
+    end
+    
+    -- 应用翻译
+    local translated = translateText(text)
+    if translated ~= text then
+        pcall(function()
+            gui.Text = translated
+            debugLog("已翻译: " .. gui.Name)
+        end)
+    end
+    
+    processedElements[gui] = true
+end
+
+-- 简化的扫描系统
+local function simpleScan(parent)
+    debugLog("开始扫描: " .. parent.Name)
+    
+    local function scanChildren(container)
+        for _, child in ipairs(container:GetChildren()) do
+            -- 安全地处理每个元素
+            pcall(safeTranslateGuiElement, child)
+            -- 递归扫描子元素
+            if #child:GetChildren() > 0 then
+                scanChildren(child)
             end
         end
-        
-        -- 递归扫描子元素
-        if #child:GetChildren() > 0 then
-            scanAndTranslateGui(child, depth + 1)
-        end
     end
+    
+    pcall(scanChildren, parent)
+    debugLog("扫描完成: " .. parent.Name)
 end
 
--- 加载外部脚本函数
-local function loadExternalScript(updateStatus)
-    updateStatus("🔄 正在加载外部脚本...")
-    print("🔄 加载外部脚本...")
-    
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights", true))()
+-- 简化的监听器
+local function setupSimpleListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.1) -- 给元素时间初始化
+        pcall(safeTranslateGuiElement, descendant)
     end)
-    
-    if success then
-        updateStatus("✅ 外部脚本加载成功!\n等待界面创建...")
-        print("✅ 外部脚本加载成功")
-        
-        -- 等待界面创建
-        for i = 1, 10 do
-            updateStatus("✅ 外部脚本加载成功!\n等待界面创建... (" .. i .. "/10)")
-            task.wait(1)
-        end
-        
-        return true
-    else
-        updateStatus("❌ 外部脚本加载失败:\n" .. tostring(err))
-        print("❌ 外部脚本加载失败: " .. tostring(err))
-        return false
-    end
 end
 
--- 执行翻译函数
-local function executeTranslation(updateStatus)
-    updateStatus("🔍 扫描并翻译界面...")
-    print("🔍 开始扫描界面...")
+-- 主要启动函数
+local function initializeTranslation()
+    debugLog("初始化翻译系统...")
     
-    -- 扫描CoreGui
-    local coreGui = game:GetService("CoreGui")
-    scanAndTranslateGui(coreGui, 0)
-    
-    -- 扫描PlayerGui
+    -- 等待游戏加载
     local players = game:GetService("Players")
     local player = players.LocalPlayer
+    
+    if not player then
+        players.PlayerAdded:Wait()
+        player = players.LocalPlayer
+    end
+    
+    -- 等待PlayerGui
+    if not player:FindFirstChild("PlayerGui") then
+        player:WaitForChild("PlayerGui", 10)
+    end
+    
+    -- 设置监听器
+    local coreGui = game:GetService("CoreGui")
+    setupSimpleListener(coreGui)
+    simpleScan(coreGui)
+    
     local playerGui = player:FindFirstChild("PlayerGui")
     if playerGui then
-        scanAndTranslateGui(playerGui, 0)
+        setupSimpleListener(playerGui)
+        simpleScan(playerGui)
+        
+        -- 监听PlayerGui的变化
+        playerGui.ChildAdded:Connect(function(child)
+            task.wait(0.5) -- 等待GUI完全加载
+            simpleScan(child)
+        end)
     end
     
-    -- 扫描Workspace中的GUI
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("SurfaceGui") or obj:IsA("BillboardGui") then
-            scanAndTranslateGui(obj, 0)
-        end
-    end
-    
-    local translatedCount = 0
-    for _ in pairs(processedElements) do
-        translatedCount = translatedCount + 1
-    end
-    
-    updateStatus("✅ 翻译完成!\n已翻译 " .. translatedCount .. " 个元素")
-    print("✅ 翻译完成! 已翻译 " .. translatedCount .. " 个元素")
+    debugLog("翻译系统初始化完成")
 end
 
--- 主初始化函数
-local function main()
-    print("🚀 主初始化开始...")
+-- 先加载外部脚本，再初始化翻译
+local function loadExternalScript()
+    debugLog("正在加载外部脚本...")
     
-    -- 创建状态UI
-    local ui = createStatusUI()
-    
-    -- 更新状态函数
-    local function updateStatus(message)
-        pcall(function()
-            ui.StatusLabel.Text = message
-        end)
-        print("📢 " .. message)
+local success, err = pcall(function()
+    -- 尝试加载外部脚本
+    local scriptUrl = "https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights"
+    local scriptContent = game:HttpGet(scriptUrl, true)
+    loadstring(scriptContent)()
+end)
+    if success then
+        debugLog("外部脚本加载成功")
+        -- 等待脚本创建界面
+        task.wait(3)
+        initializeTranslation()
+    else
+        debugLog("外部脚本加载失败: " .. tostring(err))
+        -- 即使外部脚本失败，也初始化翻译
+        task.wait(2)
+        initializeTranslation()
     end
-    
-    updateStatus("🟢 系统就绪\n点击按钮开始操作")
-    
-    -- 设置按钮事件
-    ui.LoadButton.MouseButton1Click:Connect(function()
-        task.spawn(function()
-            loadExternalScript(updateStatus)
-        end)
-    end)
-    
-    ui.TranslateButton.MouseButton1Click:Connect(function()
-        task.spawn(function()
-            executeTranslation(updateStatus)
-        end)
-    end)
-    
-    -- 自动尝试加载外部脚本
-    task.spawn(function()
-        task.wait(3)
-        updateStatus("⏳ 3秒后自动尝试加载外部脚本...")
-        task.wait(3)
-        
-        local success = loadExternalScript(updateStatus)
-        
-        if success then
-            task.wait(2)
-            updateStatus("⏳ 自动执行翻译...")
-            task.wait(1)
-            executeTranslation(updateStatus)
-        end
-    end)
-    
-    print("🎉 主初始化完成")
 end
 
--- 启动系统
-task.spawn(main)
+-- 主启动流程
+task.spawn(function()
+    debugLog("启动脚本...")
+    
+    -- 先等待游戏基本加载
+    task.wait(2)
+    
+    -- 加载外部脚本
+    loadExternalScript()
+end)
 
-print("🎯 稳健版翻译系统加载完成")
+-- 定期清理内存（可选）
+task.spawn(function()
+    while true do
+        task.wait(60)
+        local count = 0
+        for element, _ in pairs(processedElements) do
+            if not element or not element.Parent then
+                processedElements[element] = nil
+                count = count + 1
+            end
+        end
+        if debugMode and count > 0 then
+            debugLog("清理了 " .. count .. " 个无效元素")
+        end
+    end
+end)
+
+-- 提供简单的翻译接口
+return {
+    Translate = translateText,
+    Refresh = function()
+        table.clear(translationCache)
+        table.clear(processedElements)
+        debugLog("缓存已清除")
+    end
+}
