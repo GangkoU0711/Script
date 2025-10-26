@@ -1,0 +1,289 @@
+local Translations = {
+    -- 主导航栏和主菜单
+    ["BronxWare 99 Nights"] = "布朗克斯软件 99夜",
+    ["Main"] = "主界面",
+    ["Auto"] = "自动",
+    ["Teleport Options"] = "传送选项",
+    ["Bring Items"] = "获取物品",
+    
+    -- 玩家选项
+    ["Player Options"] = "玩家选项",
+    ["Codmode"] = "上帝模式",
+    ["Spectate Players"] = "观察玩家",
+    ["Fly (with Noclip)"] = "飞行（附带穿墙）",
+    ["Fly Speed"] = "飞行速度",
+    ["80 studs/sec"] = "80 罗布/秒",
+    ["Walkspeed"] = "行走速度",
+    ["16 Speed"] = "16 速度",
+    ["呼出/隐藏鼠标"] = "呼出/隐藏鼠标",
+    ["Instant Prompts"] = "即时提示",
+    
+    -- 自动化功能
+    ["Auto Scrap Items"] = "自动拆解物品",
+    ["Auto Fuel Fire"] = "自动添加燃料",
+    ["Auto Crock Pot Main"] = "自动炖锅",
+    ["Auto Cook"] = "自动烹饪",
+    ["Auto Consume Food"] = "自动食用食物",
+    ["Auto Chop Trees"] = "自动砍树",
+    ["Auto Chop"] = "自动砍伐",
+    ["Chop Range"] = "砍伐范围",
+    ["100 studs"] = "100 罗布",
+    ["Auto Plant Trees"] = "自动种植树木",
+    ["Use auto chop then click auto plant trees and wait for it to load then it will auto plant"] = "使用自动砍伐后点击自动种树，等待加载完成即可自动种植",
+    ["Auto Plant Saplings in Circle"] = "圆形自动种植树苗",
+    ["Planting Radius"] = "种植半径",
+    ["Tree Spacing"] = "树木间距",
+    ["3.5 studs"] = "3.5 罗布",
+    
+    -- 箱子系统
+    ["Chest Selector"] = "箱子选择器",
+    ["None"] = "无",
+    ["Volcanic Chest1"] = "火山箱子1",
+    ["Refresh Chest List"] = "刷新箱子列表",
+    ["Teleport To Chest"] = "传送到箱子",
+    ["Player Teleport"] = "玩家传送",
+    ["Select Player"] = "选择玩家",
+    ["Refresh Player List"] = "刷新玩家列表",
+    
+    -- 传送功能
+    ["Selective Player"] = "选择玩家",
+    ["Anvil Teleports"] = "铁砧传送",
+    ["Teleport Location"] = "传送位置",
+    ["Anvil Front"] = "铁砧前方",
+    ["Teleport"] = "传送",
+    ["Kids Teleport"] = "孩子传送",
+    ["Teleport to Dino Kid"] = "传送到恐龙孩子",
+    ["Teleport to Kraken Kid"] = "传送到海怪孩子",
+    ["Teleport to Squid Kid"] = "传送到乌贼孩子",
+    ["Teleport to Koala Kid"] = "传送到考拉孩子",
+    
+    -- 物品分类
+    ["Item Category"] = "物品分类",
+    ["Fuel"] = "燃料",
+    ["Pelt"] = "毛皮",
+    ["Seeds"] = "种子",
+    ["Armour"] = "盔甲",
+    ["Select Item"] = "选择物品",
+    ["停止/隐藏图标"] = "停止/隐藏图标",
+    ["Chair"] = "椅子",
+    ["Biofuel"] = "生物燃料",
+    ["Coal"] = "煤炭",
+    ["Food"] = "食物",
+    ["Ammo"] = "弹药",
+    ["Scrap"] = "废料",
+    ["Fuel Canister"] = "燃料罐",
+    ["Oil Barrel"] = "油桶",
+    ["Log"] = "原木",
+    ["Sacks"] = "袋子",
+    ["Healing"] = "治疗",
+    ["Wolf Corpse"] = "狼尸体",
+    ["Alpha Wolf Corpse"] = "头狼尸体",
+    ["Bear Corpse"] = "熊尸体",
+    ["Sapling"] = "树苗",
+    ["Bring Selected Item"] = "获取选定物品",
+    
+    -- 钓鱼选项
+    ["Fishing Options"] = "钓鱼选项",
+    ["Instant Catch"] = "即时捕获",
+    ["Fishable Area ESP"] = "可钓鱼区域ESP",
+    ["Fishing Zone"] = "钓鱼区域",
+    ["Water (Zone #1)"] = "水域（区域 #1）",
+    ["Water (Zone #2)"] = "水域（区域 #2）",
+    ["Water (Zone #3)"] = "水域（区域 #3）",
+    ["Teleport to Zone"] = "传送到区域",
+    ["Refresh Zones"] = "刷新区域",
+    ["Teleport to Fishing Hut"] = "传送到钓鱼小屋",
+}
+
+-- 简化版本 - 移除可能引起冲突的部分
+local debugMode = false -- 临时开启调试来排查问题
+local function debugLog(message)
+    if debugMode then
+        print("[翻译调试] " .. message)
+    end
+end
+
+-- 简化的翻译缓存
+local translationCache = {}
+
+local function translateText(text)
+    if not text or type(text) ~= "string" or text == "" then 
+        return text 
+    end
+    
+    -- 检查缓存
+    if translationCache[text] then
+        return translationCache[text]
+    end
+    
+    -- 精确匹配
+    if Translations[text] then
+        translationCache[text] = Translations[text]
+        return Translations[text]
+    end
+    
+    -- 返回原文本
+    translationCache[text] = text
+    return text
+end
+
+-- 简化的GUI处理
+local processedElements = {}
+
+local function safeTranslateGuiElement(gui)
+    -- 安全检查
+    if not gui or not gui.Parent then return end
+    if processedElements[gui] then return end
+    
+    -- 类型检查
+    local success, isTextElement = pcall(function()
+        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
+    end)
+    
+    if not success or not isTextElement then return end
+    
+    -- 文本检查
+    local text = gui.Text
+    if not text or text == "" then 
+        processedElements[gui] = true
+        return 
+    end
+    
+    -- 应用翻译
+    local translated = translateText(text)
+    if translated ~= text then
+        pcall(function()
+            gui.Text = translated
+            debugLog("已翻译: " .. gui.Name)
+        end)
+    end
+    
+    processedElements[gui] = true
+end
+
+-- 简化的扫描系统
+local function simpleScan(parent)
+    debugLog("开始扫描: " .. parent.Name)
+    
+    local function scanChildren(container)
+        for _, child in ipairs(container:GetChildren()) do
+            -- 安全地处理每个元素
+            pcall(safeTranslateGuiElement, child)
+            -- 递归扫描子元素
+            if #child:GetChildren() > 0 then
+                scanChildren(child)
+            end
+        end
+    end
+    
+    pcall(scanChildren, parent)
+    debugLog("扫描完成: " .. parent.Name)
+end
+
+-- 简化的监听器
+local function setupSimpleListener(parent)
+    parent.DescendantAdded:Connect(function(descendant)
+        task.wait(0.1) -- 给元素时间初始化
+        pcall(safeTranslateGuiElement, descendant)
+    end)
+end
+
+-- 主要启动函数
+local function initializeTranslation()
+    debugLog("初始化翻译系统...")
+    
+    -- 等待游戏加载
+    local players = game:GetService("Players")
+    local player = players.LocalPlayer
+    
+    if not player then
+        players.PlayerAdded:Wait()
+        player = players.LocalPlayer
+    end
+    
+    -- 等待PlayerGui
+    if not player:FindFirstChild("PlayerGui") then
+        player:WaitForChild("PlayerGui", 10)
+    end
+    
+    -- 设置监听器
+    local coreGui = game:GetService("CoreGui")
+    setupSimpleListener(coreGui)
+    simpleScan(coreGui)
+    
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if playerGui then
+        setupSimpleListener(playerGui)
+        simpleScan(playerGui)
+        
+        -- 监听PlayerGui的变化
+        playerGui.ChildAdded:Connect(function(child)
+            task.wait(0.5) -- 等待GUI完全加载
+            simpleScan(child)
+        end)
+    end
+    
+    debugLog("翻译系统初始化完成")
+end
+
+-- 先加载外部脚本，再初始化翻译
+local function loadExternalScript()
+    debugLog("正在加载外部脚本...")
+    
+    local success, err = pcall(function()
+        -- 尝试加载外部脚本
+        local scriptUrl = "loadstring(game:HttpGet("https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights", true))()"
+        local scriptContent = game:HttpGet(scriptUrl)
+        loadstring(scriptContent)()
+    end)
+    
+    if success then
+        debugLog("外部脚本加载成功")
+        -- 等待脚本创建界面
+        task.wait(3)
+        initializeTranslation()
+    else
+        debugLog("外部脚本加载失败: " .. tostring(err))
+        -- 即使外部脚本失败，也初始化翻译
+        task.wait(2)
+        initializeTranslation()
+    end
+end
+
+-- 主启动流程
+task.spawn(function()
+    debugLog("启动脚本...")
+    
+    -- 先等待游戏基本加载
+    task.wait(2)
+    
+    -- 加载外部脚本
+    loadExternalScript()
+end)
+
+-- 定期清理内存（可选）
+task.spawn(function()
+    while true do
+        task.wait(60)
+        local count = 0
+        for element, _ in pairs(processedElements) do
+            if not element or not element.Parent then
+                processedElements[element] = nil
+                count = count + 1
+            end
+        end
+        if debugMode and count > 0 then
+            debugLog("清理了 " .. count .. " 个无效元素")
+        end
+    end
+end)
+
+-- 提供简单的翻译接口
+return {
+    Translate = translateText,
+    Refresh = function()
+        table.clear(translationCache)
+        table.clear(processedElements)
+        debugLog("缓存已清除")
+    end
+}
