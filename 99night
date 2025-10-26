@@ -230,13 +230,12 @@ end
 local function loadExternalScript()
     debugLog("正在加载外部脚本...")
     
-    local success, err = pcall(function()
-        -- 尝试加载外部脚本
-        local scriptUrl = "loadstring(game:HttpGet("https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights", true))()"
-        local scriptContent = game:HttpGet(scriptUrl)
-        loadstring(scriptContent)()
-    end)
-    
+local success, err = pcall(function()
+    -- 尝试加载外部脚本
+    local scriptUrl = "https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights"
+    local scriptContent = game:HttpGet(scriptUrl, true)
+    loadstring(scriptContent)()
+end)
     if success then
         debugLog("外部脚本加载成功")
         -- 等待脚本创建界面
