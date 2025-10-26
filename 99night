@@ -95,11 +95,11 @@ local Translations = {
     ["Teleport to Fishing Hut"] = "传送到钓鱼小屋",
 }
 
--- 简化版本 - 移除可能引起冲突的部分
-local debugMode = false -- 临时开启调试来排查问题
+-- 开启调试模式来排查问题
+local debugMode = true
 local function debugLog(message)
     if debugMode then
-        print("[翻译调试] " .. message)
+        print("[翻译调试] " .. tostring(message))
     end
 end
 
@@ -119,6 +119,7 @@ local function translateText(text)
     -- 精确匹配
     if Translations[text] then
         translationCache[text] = Translations[text]
+        debugLog("翻译: '" .. text .. "' -> '" .. Translations[text] .. "'")
         return Translations[text]
     end
     
@@ -132,15 +133,28 @@ local processedElements = {}
 
 local function safeTranslateGuiElement(gui)
     -- 安全检查
-    if not gui or not gui.Parent then return end
-    if processedElements[gui] then return end
+    if not gui or not gui.Parent then 
+        debugLog("元素无效或没有父级: " .. tostring(gui and gui.Name))
+        return 
+    end
+    
+    if processedElements[gui] then 
+        return 
+    end
     
     -- 类型检查
     local success, isTextElement = pcall(function()
         return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
     end)
     
-    if not success or not isTextElement then return end
+    if not success then
+        debugLog("类型检查失败: " .. tostring(gui.Name))
+        return 
+    end
+    
+    if not isTextElement then 
+        return 
+    end
     
     -- 文本检查
     local text = gui.Text
@@ -152,10 +166,14 @@ local function safeTranslateGuiElement(gui)
     -- 应用翻译
     local translated = translateText(text)
     if translated ~= text then
-        pcall(function()
+        local success, err = pcall(function()
             gui.Text = translated
-            debugLog("已翻译: " .. gui.Name)
+            debugLog("成功翻译元素: " .. gui.Name .. " | 路径: " .. tostring(gui:GetFullName()))
         end)
+        
+        if not success then
+            debugLog("翻译失败: " .. tostring(err))
+        end
     end
     
     processedElements[gui] = true
@@ -163,7 +181,7 @@ end
 
 -- 简化的扫描系统
 local function simpleScan(parent)
-    debugLog("开始扫描: " .. parent.Name)
+    debugLog("开始扫描: " .. parent.Name .. " | 子元素数量: " .. #parent:GetChildren())
     
     local function scanChildren(container)
         for _, child in ipairs(container:GetChildren()) do
@@ -176,14 +194,18 @@ local function simpleScan(parent)
         end
     end
     
-    pcall(scanChildren, parent)
-    debugLog("扫描完成: " .. parent.Name)
+    local success, err = pcall(scanChildren, parent)
+    if not success then
+        debugLog("扫描失败: " .. tostring(err))
+    else
+        debugLog("扫描完成: " .. parent.Name)
+    end
 end
 
 -- 简化的监听器
 local function setupSimpleListener(parent)
     parent.DescendantAdded:Connect(function(descendant)
-        task.wait(0.1) -- 给元素时间初始化
+        task.wait(0.5) -- 给元素更多时间初始化
         pcall(safeTranslateGuiElement, descendant)
     end)
 end
@@ -195,52 +217,92 @@ local function initializeTranslation()
     -- 等待游戏加载
     local players = game:GetService("Players")
     local player = players.LocalPlayer
-    
+
     if not player then
+        debugLog("等待玩家加入...")
         players.PlayerAdded:Wait()
         player = players.LocalPlayer
     end
+
+    debugLog("玩家: " .. player.Name)
     
     -- 等待PlayerGui
-    if not player:FindFirstChild("PlayerGui") then
-        player:WaitForChild("PlayerGui", 10)
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then
+        debugLog("等待PlayerGui...")
+        playerGui = player:WaitForChild("PlayerGui", 10)
+    end
+    
+    if playerGui then
+        debugLog("找到PlayerGui")
+    else
+        debugLog("未找到PlayerGui")
     end
     
     -- 设置监听器
     local coreGui = game:GetService("CoreGui")
+    debugLog("设置CoreGui监听器...")
     setupSimpleListener(coreGui)
     simpleScan(coreGui)
     
-    local playerGui = player:FindFirstChild("PlayerGui")
     if playerGui then
+        debugLog("设置PlayerGui监听器...")
         setupSimpleListener(playerGui)
         simpleScan(playerGui)
         
         -- 监听PlayerGui的变化
         playerGui.ChildAdded:Connect(function(child)
-            task.wait(0.5) -- 等待GUI完全加载
+            debugLog("PlayerGui添加了新子元素: " .. child.Name)
+            task.wait(1) -- 等待GUI完全加载
             simpleScan(child)
         end)
+    end
+    
+    -- 额外扫描：尝试找到常见的GUI容器
+    local commonContainers = {
+        "ScreenGui", "SurfaceGui", "BillboardGui", "Dialog", "Frame"
+    }
+    
+    for _, containerName in ipairs(commonContainers) do
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA(containerName) then
+                debugLog("扫描workspace中的GUI: " .. obj:GetFullName())
+                simpleScan(obj)
+            end
+        end
     end
     
     debugLog("翻译系统初始化完成")
 end
 
--- 先加载外部脚本，再初始化翻译
+-- 修改后的外部脚本加载函数
 local function loadExternalScript()
     debugLog("正在加载外部脚本...")
     
-local success, err = pcall(function()
-    -- 尝试加载外部脚本
-    local scriptUrl = "https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights"
-    local scriptContent = game:HttpGet(scriptUrl, true)
-    loadstring(scriptContent)()
-end)
+    local success, err = pcall(function()
+        -- 尝试加载外部脚本
+        local scriptUrl = "https://raw.githubusercontent.com/Seriously56/99-Nights/refs/heads/main/99%20nights"
+        local scriptContent = game:HttpGet(scriptUrl, true)
+        loadstring(scriptContent)()
+    end)
+    
     if success then
         debugLog("外部脚本加载成功")
-        -- 等待脚本创建界面
-        task.wait(3)
-        initializeTranslation()
+        -- 等待更长时间让脚本创建界面
+        for i = 1, 10 do
+            debugLog("等待界面创建... (" .. i .. "/10)")
+            task.wait(1)
+            
+            -- 每次等待后都尝试扫描
+            local coreGui = game:GetService("CoreGui")
+            simpleScan(coreGui)
+            
+            local player = game:GetService("Players").LocalPlayer
+            local playerGui = player and player:FindFirstChild("PlayerGui")
+            if playerGui then
+                simpleScan(playerGui)
+            end
+        end
     else
         debugLog("外部脚本加载失败: " .. tostring(err))
         -- 即使外部脚本失败，也初始化翻译
@@ -249,21 +311,67 @@ end)
     end
 end
 
--- 主启动流程
+-- 改进的主启动流程
 task.spawn(function()
-    debugLog("启动脚本...")
+    debugLog("=== 启动翻译脚本 ===")
     
     -- 先等待游戏基本加载
-    task.wait(2)
+    task.wait(3)
     
-    -- 加载外部脚本
+    -- 先初始化基础翻译系统
+    initializeTranslation()
+    
+    -- 然后加载外部脚本
+    task.wait(2)
     loadExternalScript()
+    
+    -- 最后再次确保翻译系统运行
+    task.wait(5)
+    debugLog("=== 最终翻译检查 ===")
+    initializeTranslation()
 end)
 
--- 定期清理内存（可选）
+-- 提供手动刷新功能
+local function manualRefresh()
+    table.clear(translationCache)
+    table.clear(processedElements)
+    debugLog("手动刷新: 缓存已清除")
+    initializeTranslation()
+end
+
+-- 创建简单的UI来手动刷新翻译
+task.spawn(function()
+    task.wait(5) -- 等待游戏加载
+    
+    local players = game:GetService("Players")
+    local player = players.LocalPlayer
+    if not player then return end
+    
+    local playerGui = player:WaitForChild("PlayerGui", 10)
+    if not playerGui then return end
+    
+    -- 创建刷新按钮
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "TranslationRefreshUI"
+    screenGui.Parent = playerGui
+    
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 120, 0, 40)
+    button.Position = UDim2.new(0, 10, 0, 10)
+    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Text = "刷新翻译"
+    button.Parent = screenGui
+    
+    button.MouseButton1Click:Connect(function()
+        manualRefresh()
+    end)
+end)
+
+-- 定期清理内存
 task.spawn(function()
     while true do
-        task.wait(60)
+        task.wait(30)
         local count = 0
         for element, _ in pairs(processedElements) do
             if not element or not element.Parent then
@@ -280,9 +388,5 @@ end)
 -- 提供简单的翻译接口
 return {
     Translate = translateText,
-    Refresh = function()
-        table.clear(translationCache)
-        table.clear(processedElements)
-        debugLog("缓存已清除")
-    end
+    Refresh = manualRefresh
 }
