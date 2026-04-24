@@ -1,354 +1,7 @@
--- 99 Nights 汉化版 - 修复音乐问题完整版
-print("🎮 Blox Fruits 汉化版启动中...")
+-- 最终版：外部脚本加载 + 翻译系统（无加载画面/音乐）
+print("🎮 启动 Redz Hub + 翻译系统...")
 
--- 创建加载画面UI（带进度条、头像框和音乐）
-local function createLoadingScreen()
-    local players = game:GetService("Players")
-    local player = players.LocalPlayer
-    local playerGui = player:WaitForChild("PlayerGui")
-    
-    -- 创建全屏背景
-    local loadingScreen = Instance.new("ScreenGui")
-    loadingScreen.Name = "LoadingScreen"
-    loadingScreen.IgnoreGuiInset = true
-    loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    loadingScreen.Parent = playerGui
-    
-    -- 渐变背景
-    local background = Instance.new("Frame")
-    background.Size = UDim2.new(1, 0, 1, 0)
-    background.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
-    background.BackgroundTransparency = 0.1
-    background.BorderSizePixel = 0
-    background.Parent = loadingScreen
-    
-    -- 背景渐变效果
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 10, 30)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 10, 40))
-    })
-    gradient.Rotation = 45
-    gradient.Parent = background
-    
-    -- 主容器
-    local mainContainer = Instance.new("Frame")
-    mainContainer.Size = UDim2.new(0, 500, 0, 400)
-    mainContainer.Position = UDim2.new(0.5, -250, 0.5, -200)
-    mainContainer.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    mainContainer.BorderSizePixel = 0
-    mainContainer.Parent = loadingScreen
-    
-    -- 圆角效果
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 15)
-    corner.Parent = mainContainer
-    
-    -- 边框效果
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(100, 100, 200)
-    stroke.Thickness = 2
-    stroke.Parent = mainContainer
-    
-    -- 标题区域
-    local titleContainer = Instance.new("Frame")
-    titleContainer.Size = UDim2.new(1, 0, 0, 100)
-    titleContainer.Position = UDim2.new(0, 0, 0, 0)
-    titleContainer.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-    titleContainer.BorderSizePixel = 0
-    titleContainer.Parent = mainContainer
-    
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 15)
-    titleCorner.Parent = titleContainer
-    
-    -- 标题文字
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 1, 0)
-    title.Position = UDim2.new(0, 0, 0, 0)
-    title.BackgroundTransparency = 1
-    title.Text = "Blox Fruits 汉化版"
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.TextScaled = true
-    title.Font = Enum.Font.GothamBold
-    title.Parent = titleContainer
-    
-    -- 内容区域
-    local contentContainer = Instance.new("Frame")
-    contentContainer.Size = UDim2.new(1, 0, 0, 250)
-    contentContainer.Position = UDim2.new(0, 0, 0, 100)
-    contentContainer.BackgroundTransparency = 1
-    contentContainer.Parent = mainContainer
-    
-    -- 头像框（左侧）
-    local avatarFrame = Instance.new("Frame")
-    avatarFrame.Size = UDim2.new(0, 120, 0, 120)
-    avatarFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
-    avatarFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-    avatarFrame.BorderSizePixel = 0
-    avatarFrame.Parent = contentContainer
-    
-    local avatarCorner = Instance.new("UICorner")
-    avatarCorner.CornerRadius = UDim.new(0, 10)
-    avatarCorner.Parent = avatarFrame
-    
-    local avatarStroke = Instance.new("UIStroke")
-    avatarStroke.Color = Color3.fromRGB(100, 150, 255)
-    avatarStroke.Thickness = 3
-    avatarStroke.Parent = avatarFrame
-    
-    -- 头像图片
-    local avatarImage = Instance.new("ImageLabel")
-    avatarImage.Size = UDim2.new(0.8, 0, 0.8, 0)
-    avatarImage.Position = UDim2.new(0.1, 0, 0.1, 0)
-    avatarImage.BackgroundTransparency = 1
-    avatarImage.Image = "rbxassetid://8932053668"
-    avatarImage.Parent = avatarFrame
-    
-    local imageCorner = Instance.new("UICorner")
-    imageCorner.CornerRadius = UDim.new(0, 8)
-    imageCorner.Parent = avatarImage
-    
-    -- 汉化者信息（右侧）
-    local infoFrame = Instance.new("Frame")
-    infoFrame.Size = UDim2.new(0, 250, 0, 120)
-    infoFrame.Position = UDim2.new(0.5, 0, 0.1, 0)
-    infoFrame.BackgroundTransparency = 1
-    infoFrame.Parent = contentContainer
-    
-    local hanhuaLabel = Instance.new("TextLabel")
-    hanhuaLabel.Size = UDim2.new(1, 0, 0, 40)
-    hanhuaLabel.Position = UDim2.new(0, 0, 0, 0)
-    hanhuaLabel.BackgroundTransparency = 1
-    hanhuaLabel.Text = "汉化 by TH"
-    hanhuaLabel.TextColor3 = Color3.fromRGB(100, 150, 255)
-    hanhuaLabel.TextScaled = true
-    hanhuaLabel.Font = Enum.Font.GothamBold
-    hanhuaLabel.Parent = infoFrame
-    
-    local qqLabel = Instance.new("TextLabel")
-    qqLabel.Size = UDim2.new(1, 0, 0, 30)
-    qqLabel.Position = UDim2.new(0, 0, 0, 40)
-    qqLabel.BackgroundTransparency = 1
-    qqLabel.Text = "联系QQ: 977884227"
-    qqLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
-    qqLabel.TextScaled = true
-    qqLabel.Font = Enum.Font.Gotham
-    qqLabel.Parent = infoFrame
-    
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(1, 0, 0, 30)
-    statusLabel.Position = UDim2.new(0, 0, 0, 70)
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Text = "正在初始化..."
-    statusLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
-    statusLabel.TextScaled = true
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = infoFrame
-    
-    -- 进度条区域
-    local progressContainer = Instance.new("Frame")
-    progressContainer.Size = UDim2.new(0.8, 0, 0, 50)
-    progressContainer.Position = UDim2.new(0.1, 0, 0.7, 0)
-    progressContainer.BackgroundTransparency = 1
-    progressContainer.Parent = contentContainer
-    
-    -- 进度条背景
-    local progressBackground = Instance.new("Frame")
-    progressBackground.Size = UDim2.new(1, 0, 0, 20)
-    progressBackground.Position = UDim2.new(0, 0, 0, 0)
-    progressBackground.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-    progressBackground.BorderSizePixel = 0
-    progressBackground.Parent = progressContainer
-    
-    local progressBgCorner = Instance.new("UICorner")
-    progressBgCorner.CornerRadius = UDim.new(0, 10)
-    progressBgCorner.Parent = progressBackground
-    
-    -- 进度条前景
-    local progressBar = Instance.new("Frame")
-    progressBar.Size = UDim2.new(0, 0, 1, 0)
-    progressBar.Position = UDim2.new(0, 0, 0, 0)
-    progressBar.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
-    progressBar.BorderSizePixel = 0
-    progressBar.Parent = progressBackground
-    
-    local progressCorner = Instance.new("UICorner")
-    progressCorner.CornerRadius = UDim.new(0, 10)
-    progressCorner.Parent = progressBar
-    
-    -- 进度百分比文字
-    local progressText = Instance.new("TextLabel")
-    progressText.Size = UDim2.new(1, 0, 0, 20)
-    progressText.Position = UDim2.new(0, 0, 0, 25)
-    progressText.BackgroundTransparency = 1
-    progressText.Text = "0%"
-    progressText.TextColor3 = Color3.fromRGB(200, 200, 255)
-    progressText.TextScaled = true
-    progressText.Font = Enum.Font.Gotham
-    progressText.Parent = progressContainer
-    
-    -- 加载动画
-    local loadingAnimation = Instance.new("Frame")
-    loadingAnimation.Size = UDim2.new(0, 40, 0, 40)
-    loadingAnimation.Position = UDim2.new(0.5, -20, 0.9, 0)
-    loadingAnimation.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
-    loadingAnimation.BackgroundTransparency = 0.8
-    loadingAnimation.Parent = contentContainer
-    
-    local loadingCorner = Instance.new("UICorner")
-    loadingCorner.CornerRadius = UDim.new(0, 20)
-    loadingCorner.Parent = loadingAnimation
-    
-    -- 旋转动画
-    local rotateAnimation = game:GetService("TweenService"):Create(
-        loadingAnimation,
-        TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1),
-        {Rotation = 360}
-    )
-    
-    -- 开始旋转动画
-    rotateAnimation:Play()
-    
-    return {
-        Screen = loadingScreen,
-        StatusLabel = statusLabel,
-        ProgressBar = progressBar,
-        ProgressText = progressText
-    }
-end
-
--- 创建并播放加载音乐（修复版）
-local function createLoadingMusic()
-    local soundService = game:GetService("SoundService")
-    
-    -- 创建背景音乐
-    local backgroundMusic = Instance.new("Sound")
-    backgroundMusic.Name = "LoadingMusic"
-    backgroundMusic.Volume = 0.3  -- 降低音量避免打扰
-    backgroundMusic.Looped = true
-    
-    -- 尝试多个可能的音频源
-    local audioSources = {
-        -- 方法1: 使用已知可用的Roblox音频ID
-        "rbxassetid://18482187377",  -- 舒缓的环境音乐
-        "rbxassetid://9118468335",   -- 平静的背景音乐
-        "rbxassetid://9047109572",   -- 轻音乐
-        
-        -- 方法2: 使用网络音频链接（如果Roblox允许）
-        -- "https://example.com/your-music.mp3"
-    }
-    
-    -- 尝试每个音频源，直到找到可用的
-    for _, audioId in ipairs(audioSources) do
-        local success = pcall(function()
-            backgroundMusic.SoundId = audioId
-            backgroundMusic.Parent = soundService
-            backgroundMusic:Play()
-            return true
-        end)
-        
-        if success then
-            print("✅ 音乐加载成功: " .. audioId)
-            return backgroundMusic
-        else
-            print("❌ 音乐加载失败: " .. audioId)
-        end
-    end
-    
-    -- 如果所有音频都失败，返回nil
-    print("⚠️ 所有音频源都失败，将无音乐运行")
-    if backgroundMusic then
-        backgroundMusic:Destroy()
-    end
-    return nil
-end
-
--- 停止加载音乐（安全版）
-local function stopLoadingMusic(backgroundMusic)
-    if backgroundMusic and backgroundMusic.Parent then
-        -- 淡出效果
-        local tweenService = game:GetService("TweenService")
-        local fadeOut = tweenService:Create(
-            backgroundMusic,
-            TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {Volume = 0}
-        )
-        
-        fadeOut:Play()
-        
-        -- 淡出完成后停止并移除音乐
-        fadeOut.Completed:Connect(function()
-            if backgroundMusic then
-                backgroundMusic:Stop()
-                backgroundMusic:Destroy()
-            end
-        end)
-    end
-end
-
--- 更新进度条
-local function updateProgress(loadingUI, progress, status)
-    if loadingUI and loadingUI.ProgressBar and loadingUI.ProgressText and loadingUI.StatusLabel then
-        -- 更新进度条宽度
-        loadingUI.ProgressBar.Size = UDim2.new(progress, 0, 1, 0)
-        
-        -- 更新百分比文字
-        local percentage = math.floor(progress * 100)
-        loadingUI.ProgressText.Text = percentage .. "%"
-        
-        -- 更新状态文字
-        if status then
-            loadingUI.StatusLabel.Text = status
-        end
-    end
-end
-
--- 移除加载画面
-local function removeLoadingScreen(loadingUI)
-    if loadingUI and loadingUI.Screen and loadingUI.Screen.Parent then
-        loadingUI.Screen:Destroy()
-    end
-end
-
--- 模拟进度动画
-local function animateProgress(loadingUI, callback)
-    local progress = 0
-    local steps = {
-        {progress = 0.1, status = "正在初始化..."},
-        {progress = 0.2, status = "加载翻译系统..."},
-        {progress = 0.4, status = "准备外部脚本..."},
-        {progress = 0.6, status = "连接GitHub..."},
-        {progress = 0.8, status = "下载脚本内容..."},
-        {progress = 0.9, status = "执行脚本..."},
-        {progress = 1.0, status = "加载完成!"}
-    }
-    
-    for i, step in ipairs(steps) do
-        progress = step.progress
-        updateProgress(loadingUI, progress, step.status)
-        
-        -- 根据进度调整等待时间
-        local waitTime = 0.5
-        if i == 5 then  -- 下载步骤稍微长一点
-            waitTime = 1.5
-        elseif i == 6 then  -- 执行步骤也稍微长一点
-            waitTime = 1.0
-        end
-        
-        task.wait(waitTime)
-        
-        -- 检查是否需要提前结束（如果回调函数返回true）
-        if callback and callback() then
-            updateProgress(loadingUI, 1.0, "加载完成!")
-            break
-        end
-    end
-    
-    task.wait(0.5) -- 最后停留0.5秒显示完成状态
-end
-
--- 翻译表
+-- ========== 翻译表（这里只保留关键部分，实际使用你的完整表格） ==========
 local Translations = {
     -- 标题/作者
     ["redz hub : Blox Fruits by real_redz"] = "Redz中心 : 果实风暴 by real_redz",
@@ -599,203 +252,118 @@ local Translations = {
     ["Delete Lava"] = "删除岩浆",
     ["Walk on Water"] = "水上行走"
 }
-
--- 简化的翻译缓存
+-- ========== 翻译系统 ==========
 local translationCache = {}
-
-local function translateText(text)
-    if not text or type(text) ~= "string" or text == "" then 
-        return text 
-    end
-    
-    -- 检查缓存
-    if translationCache[text] then
-        return translationCache[text]
-    end
-    
-    -- 精确匹配
-    if Translations[text] then
-        translationCache[text] = Translations[text]
-        return Translations[text]
-    end
-    
-    -- 返回原文本
-    translationCache[text] = text
-    return text
-end
-
--- 简化的GUI处理
 local processedElements = {}
 
+local function translateText(text)
+    if type(text) ~= "string" or text == "" then return text end
+    if translationCache[text] then return translationCache[text] end
+    local translated = Translations[text] or text
+    translationCache[text] = translated
+    return translated
+end
+
 local function safeTranslateGuiElement(gui)
-    -- 安全检查
-    if not gui or not gui.Parent then return end
-    if processedElements[gui] then return end
-    
-    -- 类型检查
-    local success, isTextElement = pcall(function()
-        return gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
-    end)
-    
-    if not success or not isTextElement then return end
-    
-    -- 文本检查
+    if not gui or not gui.Parent or processedElements[gui] then return end
+    local isTextElement = gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
+    if not isTextElement then return end
     local text = gui.Text
-    if not text or text == "" then 
-        processedElements[gui] = true
-        return 
-    end
-    
-    -- 应用翻译
+    if text == "" then processedElements[gui] = true; return end
     local translated = translateText(text)
     if translated ~= text then
-        pcall(function()
-            gui.Text = translated
-        end)
+        pcall(function() gui.Text = translated end)
     end
-    
     processedElements[gui] = true
 end
 
--- 简化的扫描系统
-local function simpleScan(parent)
-    local function scanChildren(container)
+-- 启动翻译监听（持续扫描新增元素）
+local function startTranslation()
+    -- 扫描已存在的 GUI
+    local function scanGui(container)
         for _, child in ipairs(container:GetChildren()) do
-            -- 安全地处理每个元素
             pcall(safeTranslateGuiElement, child)
-            -- 递归扫描子元素
-            if #child:GetChildren() > 0 then
-                scanChildren(child)
-            end
+            scanGui(child)
         end
     end
+    pcall(scanGui, game:GetService("CoreGui"))
+    local player = game:GetService("Players").LocalPlayer
+    if player and player:FindFirstChild("PlayerGui") then
+        pcall(scanGui, player.PlayerGui)
+    end
     
-    pcall(scanChildren, parent)
-end
-
--- 简化的监听器
-local function setupSimpleListener(parent)
-    parent.DescendantAdded:Connect(function(descendant)
-        task.wait(0.1) -- 给元素时间初始化
+    -- 监听新增元素
+    local function onDescendantAdded(descendant)
+        task.wait(0.1)
         pcall(safeTranslateGuiElement, descendant)
-    end)
+    end
+    game:GetService("CoreGui").DescendantAdded:Connect(onDescendantAdded)
+    if player and player.PlayerGui then
+        player.PlayerGui.DescendantAdded:Connect(onDescendantAdded)
+    end
+    print("✅ 翻译系统已启动")
 end
 
--- 主要启动函数
-local function initializeTranslation()
-    -- 等待游戏加载
+-- ========== 加载外部脚本 ==========
+local function loadExternalScript()
+    local Settings = {}  -- 空配置，可按需修改
+    local success, err = pcall(function()
+        local content = game:HttpGet("https://raw.githubusercontent.com/newredzv3/Scripts/refs/heads/main/main.luau", true)
+        local func = loadstring(content)
+        if func then
+            func(Settings)
+        else
+            error("loadstring 失败")
+        end
+    end)
+    return success, err
+end
+
+-- ========== 主流程 ==========
+local function main()
+    -- 创建简单状态提示
     local players = game:GetService("Players")
     local player = players.LocalPlayer
+    local playerGui = player:WaitForChild("PlayerGui")
+    local statusGui = Instance.new("ScreenGui")
+    statusGui.Name = "StatusUI"
+    statusGui.Parent = playerGui
     
-    if not player then
-        players.PlayerAdded:Wait()
-        player = players.LocalPlayer
-    end
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 80)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -40)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.5
+    frame.BorderSizePixel = 0
+    frame.Parent = statusGui
     
-    -- 等待PlayerGui
-    if not player:FindFirstChild("PlayerGui") then
-        player:WaitForChild("PlayerGui", 10)
-    end
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.new(1, 0, 1, 0)
+    text.BackgroundTransparency = 1
+    text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    text.TextScaled = true
+    text.Font = Enum.Font.GothamBold
+    text.Text = "正在加载 Redz Hub..."
+    text.Parent = frame
     
-    -- 设置监听器
-    local coreGui = game:GetService("CoreGui")
-    setupSimpleListener(coreGui)
-    simpleScan(coreGui)
-    
-    local playerGui = player:FindFirstChild("PlayerGui")
-    if playerGui then
-        setupSimpleListener(playerGui)
-        simpleScan(playerGui)
-        
-        -- 监听PlayerGui的变化
-        playerGui.ChildAdded:Connect(function(child)
-            task.wait(0.5) -- 等待GUI完全加载
-            simpleScan(child)
-        end)
+    -- 加载外部脚本
+    local success, err = loadExternalScript()
+    if success then
+        text.Text = "✅ 加载成功！正在启动翻译..."
+        print("✅ 外部脚本加载成功")
+        -- 等待 GUI 完全创建（可根据实际情况调整）
+        task.wait(3)
+        startTranslation()
+        text.Text = "✅ Redz Hub 已加载，翻译已启用"
+        task.wait(3)
+        statusGui:Destroy()
+    else
+        text.Text = "❌ 加载失败: " .. tostring(err)
+        print("❌ 外部脚本加载失败: " .. tostring(err))
+        task.wait(5)
+        statusGui:Destroy()
     end
 end
 
--- 加载外部脚本
-local function loadExternalScript()
-    -- 1. 定义你的配置表（Settings）
-    --    你可以根据原脚本的文档来填写这里的具体配置项。
-    --    如果没有特殊需求，传一个空表 {} 通常也能让脚本正常运行。
-    local Settings = {
-        -- 启动后自动开始的功能可以在这里设置
-        -- 例如: ["Auto Farm"] = true,
-    }
-
-    -- 2. 在 pcall 里加载并执行脚本，并传入 Settings
-    local success, err = pcall(function()
-        -- 关键：这里是一个整体，loadstring(...) 加载后立刻用 (Settings) 调用它
-        local scriptContent = game:HttpGet("https://raw.githubusercontent.com/newredzv3/Scripts/refs/heads/main/main.luau", true)
-        loadstring(scriptContent)(Settings)   -- <--- 核心就是这里的 (Settings)
-    end)
-
-    if success then
-        print("✅ 外部脚本加载成功")
-        task.wait(3) -- 等待脚本创建界面
-        initializeTranslation()
-        return true
-    else
-        print("❌ 外部脚本加载失败: " .. tostring(err))
-        task.wait(2)
-        initializeTranslation()
-        return false
-    end
-end-- 主启动流程
-task.spawn(function()
-    -- 先等待游戏基本加载
-    task.wait(1)
-    
-    -- 创建加载画面
-    local loadingUI = createLoadingScreen()
-    
-    -- 创建并播放加载音乐
-    local backgroundMusic = createLoadingMusic()
-    
-    -- 开始进度动画
-    local externalScriptLoaded = false
-    
-    -- 在进度动画期间加载外部脚本
-    task.spawn(function()
-        task.wait(2) -- 等待进度动画开始
-        
-        externalScriptLoaded = loadExternalScript()
-    end)
-    
-    -- 启动进度条动画
-    animateProgress(loadingUI, function()
-        return externalScriptLoaded
-    end)
-    
-    -- 停止音乐并移除加载画面
-    if backgroundMusic then
-        stopLoadingMusic(backgroundMusic)
-    end
-    removeLoadingScreen(loadingUI)
-end)
-
--- 定期清理内存
-task.spawn(function()
-    while true do
-        task.wait(60)
-        local count = 0
-        for element, _ in pairs(processedElements) do
-            if not element or not element.Parent then
-                processedElements[element] = nil
-                count = count + 1
-            end
-        end
-    end
-end)
-
--- 提供简单的翻译接口
-return {
-    Translate = translateText,
-    Refresh = function()
-        table.clear(translationCache)
-        table.clear(processedElements)
-        initializeTranslation()
-    end
-}
+task.spawn(main)
+print("脚本已启动，请等待...")
