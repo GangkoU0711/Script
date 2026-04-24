@@ -67,7 +67,7 @@ local function createLoadingScreen()
     title.Size = UDim2.new(1, 0, 1, 0)
     title.Position = UDim2.new(0, 0, 0, 0)
     title.BackgroundTransparency = 1
-    title.Text = "99 Nights 汉化版"
+    title.Text = "Blox Fruits 汉化版"
     title.TextColor3 = Color3.fromRGB(255, 255, 255)
     title.TextScaled = true
     title.Font = Enum.Font.GothamBold
@@ -717,15 +717,24 @@ end
 
 -- 加载外部脚本
 local function loadExternalScript()
+    -- 1. 定义你的配置表（Settings）
+    --    你可以根据原脚本的文档来填写这里的具体配置项。
+    --    如果没有特殊需求，传一个空表 {} 通常也能让脚本正常运行。
+    local Settings = {
+        -- 启动后自动开始的功能可以在这里设置
+        -- 例如: ["Auto Farm"] = true,
+    }
+
+    -- 2. 在 pcall 里加载并执行脚本，并传入 Settings
     local success, err = pcall(function()
-        -- 注意：如果外部脚本不需要参数，直接调用 loadstring()()
+        -- 关键：这里是一个整体，loadstring(...) 加载后立刻用 (Settings) 调用它
         local scriptContent = game:HttpGet("https://raw.githubusercontent.com/newredzv3/Scripts/refs/heads/main/main.luau", true)
-        loadstring(scriptContent)()   -- 移除了未定义的 Settings 参数
+        loadstring(scriptContent)(Settings)   -- <--- 核心就是这里的 (Settings)
     end)
 
     if success then
         print("✅ 外部脚本加载成功")
-        task.wait(3)
+        task.wait(3) -- 等待脚本创建界面
         initializeTranslation()
         return true
     else
@@ -734,8 +743,7 @@ local function loadExternalScript()
         initializeTranslation()
         return false
     end
-end
--- 主启动流程
+end-- 主启动流程
 task.spawn(function()
     -- 先等待游戏基本加载
     task.wait(1)
