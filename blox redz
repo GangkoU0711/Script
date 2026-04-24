@@ -1,5 +1,5 @@
 -- 99 Nights 汉化版 - 修复音乐问题完整版
-print("🎮 blox Fruits 汉化版启动中...")
+print("🎮 Blox Fruits 汉化版启动中...")
 
 -- 创建加载画面UI（带进度条、头像框和音乐）
 local function createLoadingScreen()
@@ -718,22 +718,23 @@ end
 -- 加载外部脚本
 local function loadExternalScript()
     local success, err = pcall(function()
-        -- 使用你指定的外部脚本链接
-       loadstring(game:HttpGet("https://raw.githubusercontent.com/newredzv3/Scripts/refs/heads/main/main.luau"))(Settings)
-    
+        -- 注意：如果外部脚本不需要参数，直接调用 loadstring()()
+        local scriptContent = game:HttpGet("https://raw.githubusercontent.com/newredzv3/Scripts/refs/heads/main/main.luau", true)
+        loadstring(scriptContent)()   -- 移除了未定义的 Settings 参数
+    end)
+
     if success then
-        -- 等待脚本创建界面
+        print("✅ 外部脚本加载成功")
         task.wait(3)
         initializeTranslation()
         return true
     else
-        -- 即使外部脚本失败，也初始化翻译
+        print("❌ 外部脚本加载失败: " .. tostring(err))
         task.wait(2)
         initializeTranslation()
         return false
     end
 end
-
 -- 主启动流程
 task.spawn(function()
     -- 先等待游戏基本加载
