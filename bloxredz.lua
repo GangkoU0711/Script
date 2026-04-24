@@ -1,12 +1,28 @@
--- 最终版：外部脚本加载 + 翻译系统（无加载画面/音乐）
+-- 最终可靠版：固定延迟 + 强力翻译
 print("🎮 启动 Redz Hub + 翻译系统...")
 
--- ========== 翻译表（只展示开头，实际用你的完整表格） ==========
+-- ========== 翻译表（只展示关键部分，你自行补全完整表格） ==========
 local Translations = {
     ["redz hub : Blox Fruits by real_redz"] = "Redz中心 : 果实风暴 by real_redz",
+    ["Discord"] = "Discord",
+    ["REDZ"] = "REDZ",
     ["Farm"] = "刷怪",
-    ["Main Farm"] = "主刷怪",
-    -- ... 你的其余翻译条目 ...
+    ["Fishing"] = "钓鱼",
+    ["Islands"] = "岛屿",
+    ["Quest/Items"] = "任务/物品",
+    ["Teleport"] = "传送",
+    ["Status"] = "状态",
+    ["Visual"] = "视觉",
+    ["Shop"] = "商店",
+    ["Misc"] = "杂项",
+    ["Menu"] = "菜单",
+    ["任务"] = "任务",
+    ["击败8危险的囚犯（1/8）"] = "击败8名危险的囚犯（1/8）",
+    ["奖励："] = "奖励：",
+    ["Go to Server"] = "前往服务器",
+    ["$7,500"] = "$7,500",
+    ["780,000经验值"] = "780,000经验值",
+    -- 你原有的所有翻译项请保留...
 }
 
 -- ========== 翻译系统 ==========
@@ -17,47 +33,54 @@ local function translateText(text)
     if type(text) ~= "string" or text == "" then return text end
     if translationCache[text] then return translationCache[text] end
     local translated = Translations[text] or text
+    if translated ~= text then
+        print("[翻译] 原文: '" .. text .. "' -> 译文: '" .. translated .. "'")
+    end
     translationCache[text] = translated
     return translated
 end
 
 local function safeTranslateGuiElement(gui)
     if not gui or not gui.Parent or processedElements[gui] then return end
-    local isTextElement = gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")
-    if not isTextElement then return end
-    local text = gui.Text
-    if text == "" then processedElements[gui] = true; return end
-    local translated = translateText(text)
-    if translated ~= text then
-        pcall(function() gui.Text = translated end)
-        print("[翻译] " .. text .. " -> " .. translated)  -- 调试用，可删除
+    if gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox") then
+        local text = gui.Text
+        if text ~= "" then
+            local translated = translateText(text)
+            if translated ~= text then
+                pcall(function() gui.Text = translated end)
+            end
+        end
+        processedElements[gui] = true
     end
-    processedElements[gui] = true
 end
 
-local function scanGui(container)
+-- 递归扫描所有子元素
+local function scanAll(container)
     for _, child in ipairs(container:GetChildren()) do
         pcall(safeTranslateGuiElement, child)
-        scanGui(child)
+        scanAll(child)
     end
 end
 
+-- 启动翻译监听
 local function startTranslation()
-    pcall(scanGui, game:GetService("CoreGui"))
+    -- 立即扫描整个 GUI 树
+    pcall(scanAll, game:GetService("CoreGui"))
     local player = game:GetService("Players").LocalPlayer
     if player and player:FindFirstChild("PlayerGui") then
-        pcall(scanGui, player.PlayerGui)
+        pcall(scanAll, player.PlayerGui)
     end
     
-    local function onDescendantAdded(descendant)
+    -- 监听新增元素
+    local function onNew(descendant)
         task.wait(0.1)
         pcall(safeTranslateGuiElement, descendant)
     end
-    game:GetService("CoreGui").DescendantAdded:Connect(onDescendantAdded)
+    game:GetService("CoreGui").DescendantAdded:Connect(onNew)
     if player and player.PlayerGui then
-        player.PlayerGui.DescendantAdded:Connect(onDescendantAdded)
+        player.PlayerGui.DescendantAdded:Connect(onNew)
     end
-    print("✅ 翻译系统已启动")
+    print("✅ 翻译系统已启动，将持续监听界面变化")
 end
 
 -- ========== 加载外部脚本 ==========
@@ -77,97 +100,56 @@ end
 
 -- ========== 主流程 ==========
 local function main()
-    local players = game:GetService("Players")
-    local player = players.LocalPlayer
+    -- 创建一个极简状态提示（可选）
+    local player = game:GetService("Players").LocalPlayer
     local playerGui = player:WaitForChild("PlayerGui")
-    
-    -- 状态提示 UI
     local statusGui = Instance.new("ScreenGui")
-    statusGui.Name = "StatusUI"
+    statusGui.Name = "LoadingStatus"
     statusGui.Parent = playerGui
     
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 300, 0, 80)
-    frame.Position = UDim2.new(0.5, -150, 0.5, -40)
+    frame.Size = UDim2.new(0, 260, 0, 50)
+    frame.Position = UDim2.new(0.5, -130, 0.5, -25)
     frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    frame.BackgroundTransparency = 0.5
+    frame.BackgroundTransparency = 0.6
     frame.BorderSizePixel = 0
     frame.Parent = statusGui
     
-    local text = Instance.new("TextLabel")
-    text.Size = UDim2.new(1, 0, 1, 0)
-    text.BackgroundTransparency = 1
-    text.TextColor3 = Color3.fromRGB(255, 255, 255)
-    text.TextScaled = true
-    text.Font = Enum.Font.GothamBold
-    text.Text = "正在加载 Redz Hub..."
-    text.Parent = frame
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.Text = "加载中..."
+    label.Parent = frame
     
     -- 1. 加载外部脚本
+    label.Text = "正在加载 Redz Hub..."
     local success, err = loadExternalScript()
     if not success then
-        text.Text = "❌ 加载失败: " .. tostring(err)
-        print("❌ 外部脚本加载失败: " .. tostring(err))
+        label.Text = "加载失败: " .. tostring(err)
+        print("❌ 加载失败: " .. tostring(err))
         task.wait(5)
         statusGui:Destroy()
         return
     end
     
-    text.Text = "✅ 脚本已加载，等待界面出现..."
-    print("✅ 外部脚本加载成功，等待 GUI 初始化...")
+    label.Text = "脚本已加载，等待界面..."
+    print("✅ 外部脚本加载成功，等待 8 秒确保界面完全出现...")
+    task.wait(8)  -- 固定等待 8 秒，足够界面完成初始化
     
-    -- 2. 智能等待：扫描界面文字是否存在（最多等待 20 秒）
-    local guiReady = false
-    local keywords = {"Farm", "Main Farm", "redz hub", "Discord"}  -- Redz Hub 界面会出现的文字
-    for i = 1, 20 do
-        task.wait(0.5)  -- 每 0.5 秒检测一次，提高响应速度
-        
-        -- 扫描 CoreGui 和 PlayerGui 中所有 TextLabel/TextButton 的文本
-        local function containsKeyword(container)
-            for _, obj in ipairs(container:GetChildren()) do
-                if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-                    local txt = obj.Text
-                    if txt and txt ~= "" then
-                        for _, kw in ipairs(keywords) do
-                            if txt:find(kw, 1, true) then  -- 简单文本包含检测
-                                return true
-                            end
-                        end
-                    end
-                end
-                if #obj:GetChildren() > 0 and containsKeyword(obj) then
-                    return true
-                end
-            end
-            return false
-        end
-        
-        local coreGui = game:GetService("CoreGui")
-        local playerGui = player:FindFirstChild("PlayerGui")
-        if containsKeyword(coreGui) or (playerGui and containsKeyword(playerGui)) then
-            guiReady = true
-            print("✅ 检测到 Redz Hub 界面文字，启动翻译...")
-            break
-        end
-        
-        if i % 4 == 0 then  -- 每 2 秒输出一次
-            print("⏳ 等待界面文字出现... (" .. i*0.5 .. "/20 秒)")
-        end
-    end
-    
-    if not guiReady then
-        print("⚠️ 超时未检测到界面文字，仍尝试启动翻译（可能文字未被扫描到）")
-    end
-    
-    -- 3. 启动翻译系统
+    -- 2. 启动翻译
+    label.Text = "正在应用翻译..."
     startTranslation()
-    text.Text = "✅ Redz Hub 已加载，翻译已启用"
-    print("🎉 翻译系统已启用，界面文本将自动翻译")
     
-    -- 4. 5 秒后关闭状态提示
+    label.Text = "汉化完成 by TH (QQ:977884227)"
+    print("🎉 翻译已启用，所有界面文本将自动汉化")
+    
+    -- 3. 5秒后自动隐藏状态提示
     task.wait(5)
     statusGui:Destroy()
 end
 
 task.spawn(main)
-print("脚本已启动，请耐心等待 Redz Hub 界面...")
+print("脚本已启动，请稍等...")
