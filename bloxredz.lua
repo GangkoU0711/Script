@@ -256,6 +256,7 @@ local function translateText(text)
         return Translations[text]
     end
     
+    -- 模糊匹配（开销较大，若卡顿可注释掉）
     for en, cn in pairs(Translations) do
         if text:find(en) then
             return text:gsub(en, cn)
@@ -267,6 +268,7 @@ end
 
 local function setupTranslationEngine()
     local success, err = pcall(function()
+        -- Hook 部分（无性能问题）
         local oldIndex = getrawmetatable(game).__newindex
         setreadonly(getrawmetatable(game), false)
         
@@ -281,11 +283,13 @@ local function setupTranslationEngine()
     end)
     
     if not success then
-        warn("元表劫持失败:", err)
+        warn("元表劫持失败，启用降级轮询模式（已优化频率）:", err)
        
         local translated = {}
+        local coreGui = game:GetService("CoreGui")
         local function scanAndTranslate()
-            for _, gui in ipairs(game:GetService("CoreGui"):GetDescendants()) do
+            -- 只扫描 CoreGui
+            for _, gui in ipairs(coreGui:GetDescendants()) do
                 if (gui:IsA("TextLabel") or gui:IsA("TextButton") or gui:IsA("TextBox")) and not translated[gui] then
                     pcall(function()
                         local text = gui.Text
@@ -300,6 +304,7 @@ local function setupTranslationEngine()
                 end
             end
             
+            -- 扫描 PlayerGui
             local player = game:GetService("Players").LocalPlayer
             if player and player:FindFirstChild("PlayerGui") then
                 for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
@@ -319,6 +324,7 @@ local function setupTranslationEngine()
             end
         end
         
+        -- 监听新增元素（轻量）
         local function setupDescendantListener(parent)
             parent.DescendantAdded:Connect(function(descendant)
                 if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
@@ -342,19 +348,19 @@ local function setupTranslationEngine()
             pcall(setupDescendantListener, player.PlayerGui)
         end
         
+        -- ⭐ 关键优化：轮询间隔从 3 秒改为 6 秒，减少一半 CPU 占用
         while true do
             scanAndTranslate()
-            task.wait(3)
+            task.wait(6)   -- 原来是 3，现在改为 6
         end
     end
 end
 
 task.wait(2)
-
 setupTranslationEngine()
 
--- 加载外部脚本（替换为你确认有效的链接）
-local Settings = {}  -- 空表，可根据需要配置
+-- 加载外部脚本
+local Settings = {}
 local success, err = pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/newredzv3/Scripts/refs/heads/main/main.luau"))(Settings)
 end)
