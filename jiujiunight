@@ -1128,7 +1128,9 @@ setupTranslationEngine()
 -- 加载外部脚本（替换为你确认有效的链接）
 local Settings = {}  -- 空表，可根据需要配置
 local success, err = pcall(function()
-  loadstring(game:HttpGet("https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/99%E5%A4%9C%E8%99%9A%E7%A9%BA.txt"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/99%E5%A4%9C%E8%99%9A%E7%A9%BA.txt"))()
+end)
+
 if not success then
     warn("加载失败:", err)
 end
