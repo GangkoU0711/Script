@@ -1018,7 +1018,7 @@ local Translations = {
     ["任务"] = "任务",
     ["奖励："] = "奖励：",
     ["使用"] = "使用",
-    ["重击地面"] = "重击地面",
+    ["重击地面"] = "重击地面"
 }
 
 local function translateText(text)
